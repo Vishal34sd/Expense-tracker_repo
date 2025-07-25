@@ -13,7 +13,8 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 app.use(cors({
-  origin: ['https://expense-tracker-repo-3p8w.vercel.app', 'http://localhost:5173'], 
+  origin: ['https://expense-tracker-repo-3p8w.vercel.app','https://expense-tracker-repo-3p8w.vercel.app',
+     'http://localhost:5173'], 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
