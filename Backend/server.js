@@ -1,17 +1,22 @@
-import express from "express" ;
+import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 import dbConnection from "./database/db.js";
-const PORT = process.env.PORT ;
-import transactionRoutes from "./routes/transactionRoute.js"
-import authRoutes from "./routes/authRoute.js"
+import transactionRoutes from "./routes/transactionRoute.js";
+import authRoutes from "./routes/authRoute.js";
 
-dbConnection();
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({extended:true}));
+const PORT = process.env.PORT;
 
+// Connect to DB
+dbConnection();
+
+// Middleware to parse JSON and URL-encoded form data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ✅ Allow only your frontend's HTTPS domain
 const allowedOrigins = ['https://expense-tracker-repo-3p8w.vercel.app'];
 
 app.use(
@@ -20,19 +25,21 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // If you're using cookies or auth headers
+    credentials: true,
   })
 );
 
+// ✅ Handle preflight requests (important!)
+app.options('*', cors());
 
+// Routes
 app.use("/api/v1", transactionRoutes);
 app.use("/api/v1", authRoutes);
 
-
-
-app.listen(PORT , ()=>{
-    console.log(`Server is running on port ${PORT}`);
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
