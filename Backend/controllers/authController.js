@@ -81,8 +81,8 @@ const userLogin = async(req , res)=>{
     const accessToken = await jwt.sign({
       userId : emailExist._id ,
       username : emailExist.username,
-      email : emailExist.email,
-      password : emailExist.password
+      email : emailExist.email
+    
 
     }, process.env.JWT_SECRET_KEY, {expiresIn : "30m"});
     

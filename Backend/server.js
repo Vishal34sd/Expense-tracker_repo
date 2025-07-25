@@ -11,7 +11,13 @@ dbConnection();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.use(cors());
+
+app.use(cors({
+  origin: ["expense-tracker-repo-3p8w.vercel.app"
+],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}));
 
 app.use("/api/v1", transactionRoutes);
 app.use("/api/v1", authRoutes);
