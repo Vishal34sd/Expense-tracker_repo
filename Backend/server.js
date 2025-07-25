@@ -13,10 +13,9 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 app.use(cors({
-  origin: ["expense-tracker-repo-3p8w.vercel.app"
-],
+  origin: ['https://expense-tracker-repo-3p8w.vercel.app'], // ✅ HTTPS only
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true
 }));
 
 app.use("/api/v1", transactionRoutes);
