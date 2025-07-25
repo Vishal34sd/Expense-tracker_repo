@@ -8,7 +8,7 @@ const LandingPage = () => {
       {/* Main Content */}
       <div className="text-center">
         <h1 className="text-5xl font-bold text-teal-400 mb-4 drop-shadow-lg">
-          💰 Expense Tracker
+           Expense Tracker
         </h1>
         <p className="text-lg text-gray-300 max-w-xl mx-auto mb-10">
           Track your daily spending, analyze your habits, and reach your financial goals — all in one secure, elegant app.
@@ -49,7 +49,7 @@ const LandingPage = () => {
 
       {/* Footer */}
       <div className="mt-20 text-sm text-gray-500">
-        Made with ❤️ by Vishal | Expense Tracker 2025
+        Latest Version 2.5.1 | Expense Tracker 2025
       </div>
     </div>
   );
