@@ -19,7 +19,7 @@ const AllTransactions = () => {
 
   const transactionData = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/get",{
+      const res = await axios.get("https://expense-tracker-c5hw.onrender.com/api/v1/get",{
         headers : {
           Authorization : `Bearer ${getToken()}`
         }
@@ -46,7 +46,7 @@ const AllTransactions = () => {
     e.preventDefault();
     try {
       const res = await axios.put(
-        `http://localhost:8080/api/v1/edit/${editId}`,  editTransaction , {
+        `https://expense-tracker-c5hw.onrender.com/api/v1/edit/${editId}`,  editTransaction , {
           headers : {
             Authorization : `Bearer ${getToken()}`
           }
@@ -71,7 +71,7 @@ const AllTransactions = () => {
   
   const handleDelete = async (item) => {
     try {
-      await axios.delete(`http://localhost:8080/api/v1/delete/${item._id}`,
+      await axios.delete(`https://expense-tracker-c5hw.onrender.com/api/v1/delete/${item._id}`,
         {
           headers : {
             Authorization : `Bearer ${getToken()}`
