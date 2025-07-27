@@ -1,6 +1,8 @@
 import User from "../model/userSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
+import { otpGenerator } from "../utils/otp.js";
+import { sendEmail } from "../utils/nodeMailerConfig.js";
 
 const userRegister = async (req, res) => {
   try {
@@ -65,7 +67,7 @@ const userLogin = async(req , res)=>{
   try{
     const {email , password} = req.body ;
     const emailExist = await User.findOne({email});
-    if(!email){
+    if(!emailExist){
       return res.status(400).json({
         success : false ,
         message : "Email doesn't exist"
@@ -92,10 +94,19 @@ const userLogin = async(req , res)=>{
         message : "Login failed"
       })
     }
+// Creation of otp and saving it to DataBase
+    const otp = otpGenerator();
+    await sendEmail(email , otp);
+    emailExist.otp = otp ;
+    emailExist.expiresIn = Date.now() + 10*60*1000 ; // otp expires in 10min
+    await emailExist.save();
+
+
     return res.status(200).json({
       success : true ,
       message : "Login successfull",
-      token : accessToken
+      token : accessToken,
+      otp : otp
     })
 
   }
@@ -107,5 +118,49 @@ const userLogin = async(req , res)=>{
     })
   }
 }
+const verifyOTP = async (req, res) => {
+  try {
+    const { otp } = req.body;
 
-export { userRegister , userLogin };
+    if (!otp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP is required"
+      });
+    }
+
+    const userEmail = await User.findOne({ email: req.userInfo.email });
+
+    if (!userEmail) {
+      return res.status(404).json({
+        success: false,
+        message: "Email not found"
+      });
+    }
+
+    if (userEmail.otp !== otp) {
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+    }
+
+    if (userEmail.expiresIn < Date.now()) {
+      return res.status(400).json({ success: false, message: "OTP has expired" });
+    }
+
+    userEmail.otp = null;
+    userEmail.expiresIn = null;
+    await userEmail.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully"
+    });
+  } catch (err) {
+    console.error("OTP verification error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
+export { userRegister , userLogin , verifyOTP};
