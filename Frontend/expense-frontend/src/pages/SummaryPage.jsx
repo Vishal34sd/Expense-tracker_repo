@@ -23,7 +23,7 @@ const ViewSummary = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("https://expense-tracker-c5hw.onrender.com/api/v1/get", {
+      const res = await axios.get("/api/v1/get", {
         headers: {
           Authorization: `Bearer ${getToken()}`
         }

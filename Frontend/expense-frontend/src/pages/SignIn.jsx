@@ -13,9 +13,9 @@ const SignIn = () => {
   const formHandler = async(event)=>{
     event.preventDefault();
     try{
-      const res = await axios.post("https://expense-tracker-c5hw.onrender.com/api/v1/login", {email , password});
+      const res = await axios.post("/api/v1/login", {email , password});
       storeToken(res.data.token);
-      navigate("/dashboard")
+      navigate("/otp-verify")
     }
     catch(err){
       console.log(err)

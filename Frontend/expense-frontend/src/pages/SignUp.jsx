@@ -14,7 +14,7 @@ const SignUp = () => {
     const formHandler = async(event)=>{
       event.preventDefault();
       try{
-      const res = await  axios.post("https://expense-tracker-c5hw.onrender.com/api/v1/register", {username, email, password});
+      const res = await  axios.post("/api/v1/register", {username, email, password});
       console.log(res.data);
       navigate("/login");
 
