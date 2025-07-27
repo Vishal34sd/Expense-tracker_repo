@@ -19,7 +19,7 @@ const OTP_Page = () => {
           },
         }
       );
-      alert("Email verification is successful")
+      alert("Email Verified Successfully!")
       navigate("/dashboard");
     } catch (err) {
       console.log("OTP not provided");
