@@ -15,7 +15,7 @@ const SignIn = () => {
     try{
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/login`, {email , password});
       storeToken(res.data.token);
-      navigate("/otp-verify")
+      navigate("/dashboard")
     }
     catch(err){
       console.log(err)
