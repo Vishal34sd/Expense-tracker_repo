@@ -118,5 +118,49 @@ const userLogin = async(req , res)=>{
     })
   }
 }
+const verifyOTP = async (req, res) => {
+  try {
+    const { otp } = req.body;
 
-export { userRegister , userLogin };
+    if (!otp) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP is required"
+      });
+    }
+
+    const userEmail = await User.findOne({ email: req.userInfo.email });
+
+    if (!userEmail) {
+      return res.status(404).json({
+        success: false,
+        message: "Email not found"
+      });
+    }
+
+    if (userEmail.otp !== otp) {
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+    }
+
+    if (userEmail.expiresIn < Date.now()) {
+      return res.status(400).json({ success: false, message: "OTP has expired" });
+    }
+
+    userEmail.otp = null;
+    userEmail.expiresIn = null;
+    await userEmail.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully"
+    });
+  } catch (err) {
+    console.error("OTP verification error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
+export { userRegister , userLogin , verifyOTP};
