@@ -10,6 +10,7 @@ import ExpenseAdd from './pages/ExpenseAdd.jsx'
 import AllTransaction from './pages/AllTransaction.jsx'
 import ViewSummary from './pages/SummaryPage.jsx'
 import Home from './pages/Home.jsx'
+import OTP_Page from './pages/OTP_Page.jsx'
 
 const appRouter = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ const appRouter = createBrowserRouter([
    {
     path: "/home",
     element: <Home/>
+  },
+  {
+    path: "/otp-verify",
+    element: <OTP_Page/>
   }
 
 
