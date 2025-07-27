@@ -1,6 +1,8 @@
 import User from "../model/userSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
+import { otpGenerator } from "../utils/otp.js";
+import { sendEmail } from "../utils/nodeMailerConfig.js";
 
 const userRegister = async (req, res) => {
   try {
@@ -65,7 +67,7 @@ const userLogin = async(req , res)=>{
   try{
     const {email , password} = req.body ;
     const emailExist = await User.findOne({email});
-    if(!email){
+    if(!emailExist){
       return res.status(400).json({
         success : false ,
         message : "Email doesn't exist"
@@ -92,10 +94,19 @@ const userLogin = async(req , res)=>{
         message : "Login failed"
       })
     }
+// Creation of otp and saving it to DataBase
+    const otp = otpGenerator();
+    await sendEmail(email , otp);
+    emailExist.otp = otp ;
+    emailExist.expiresIn = Date.now() + 10*60*1000 ; // otp expires in 10min
+    await emailExist.save();
+
+
     return res.status(200).json({
       success : true ,
       message : "Login successfull",
-      token : accessToken
+      token : accessToken,
+      otp : otp
     })
 
   }
