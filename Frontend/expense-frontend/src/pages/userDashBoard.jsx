@@ -21,7 +21,7 @@ const UserDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("/api/v1/get", {
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/get`, {
         headers: {
           Authorization: `Bearer ${getToken()}`
         }
@@ -36,7 +36,7 @@ const UserDashboard = () => {
 
   const fetchRecentData = async () => {
     try {
-      const res = await axios.get("/api/v1/recent", {
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/recent`, {
         headers: {
           Authorization: `Bearer ${getToken()}`
         }

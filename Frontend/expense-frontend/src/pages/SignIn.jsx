@@ -13,7 +13,7 @@ const SignIn = () => {
   const formHandler = async(event)=>{
     event.preventDefault();
     try{
-      const res = await axios.post("/api/v1/login", {email , password});
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URLL}/api/v1/login`, {email , password});
       storeToken(res.data.token);
       navigate("/otp-verify")
     }

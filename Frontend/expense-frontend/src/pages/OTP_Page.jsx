@@ -11,7 +11,7 @@ const OTP_Page = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "/api/v1/verify-otp", 
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/verify-otp`, 
         { otp },
         {
           headers: {

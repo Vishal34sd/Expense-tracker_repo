@@ -19,7 +19,7 @@ const AllTransactions = () => {
 
   const transactionData = async () => {
     try {
-      const res = await axios.get("/api/v1/get",{
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,{
         headers : {
           Authorization : `Bearer ${getToken()}`
         }
@@ -46,7 +46,7 @@ const AllTransactions = () => {
     e.preventDefault();
     try {
       const res = await axios.put(
-        `/api/v1/edit/${editId}`,  editTransaction , {
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/edit/${editId}`,  editTransaction , {
           headers : {
             Authorization : `Bearer ${getToken()}`
           }
@@ -71,7 +71,7 @@ const AllTransactions = () => {
   
   const handleDelete = async (item) => {
     try {
-      await axios.delete(`/api/v1/delete/${item._id}`,
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/v1/delete/${item._id}`,
         {
           headers : {
             Authorization : `Bearer ${getToken()}`

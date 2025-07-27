@@ -25,7 +25,7 @@ const AddExpense = () => {
         e.preventDefault();
          console.log("Submitting Form:", form);
         try{
-          const res = await axios.post("/api/v1/add", form,{
+          const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/add`, form,{
             headers : {
               Authorization : `Bearer ${getToken()}`
             }
