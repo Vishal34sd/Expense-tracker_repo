@@ -13,33 +13,33 @@ const PORT = process.env.PORT || 8080;
 
 dbConnection();
 
-// const allowedOrigins = ['https://expense-tracker-repo-3p8w.vercel.app'];
+const allowedOrigins = ['https://expense-tracker-repo-3p8w.vercel.app'];
 
 
-// app.use((req, res, next) => {
-//   if (req.method === 'OPTIONS') {
-//     console.log(' CORS Preflight from:', req.headers.origin);
-//   }
-//   next();
-// });
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    console.log(' CORS Preflight from:', req.headers.origin);
+  }
+  next();
+});
 
 
-// app.options('*', cors());
+app.options('*', cors());
 
 
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
-//   })
-// );
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+  })
+);
 
 
 app.use(express.json());
