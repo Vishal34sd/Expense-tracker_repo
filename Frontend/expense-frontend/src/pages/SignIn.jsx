@@ -8,6 +8,7 @@ import { storeToken } from "../utils/token";
 const SignIn = () => {
   const [email , setEmail] = useState("")
   const [password , setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const formHandler = async(event)=>{
@@ -38,15 +39,22 @@ const SignIn = () => {
               onChange ={(e)=>setEmail(e.target.value)}
             />
           </div>
-          <div>
+          <div className="relative">
             <label className="block text-sm text-gray-300 mb-1">Password</label>
             <input
-              type="password"
+              type= {showPassword? "text" : "password"}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="Enter password"
               value = {password}
               onChange = {(e)=>setPassword(e.target.value)}
             />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-8 cursor-pointer text-sm text-teal-400 select-none"
+              >
+                {showPassword ? "Hide": "Show"}
+              </span>
+
           </div>
 
           <button

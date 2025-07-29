@@ -79,7 +79,7 @@ const UserDashboard = () => {
           <Link to="/addTransaction" className="block hover:text-teal-400">📜 See All Transactions</Link>
           <Link  to = "/summary"className="block hover:text-teal-400">📊 View Summary</Link>
           <Link to="/add" className="block hover:text-teal-400">➕ Add New Expense</Link>
-          <a href="#" className="block hover:text-teal-400">⚙️ Settings</a>
+          <Link to = "/changePassword"className="block hover:text-teal-400">⚙️ Change Password</Link>
           <Link to="/" className="block hover:text-teal-400" onClick={() => removeToken()}>🚪 Logout</Link>
         </nav>
       </aside>
