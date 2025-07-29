@@ -29,7 +29,7 @@ const OTP_Page = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center px-4">
       <div className="bg-gray-900 border border-gray-700 shadow-xl rounded-2xl p-8 sm:p-10 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-teal-400 mb-2 text-center">OTP Verification</h2>
+        <h2 className="text-3xl font-bold text-teal-400 mb-2 text-center">Email Verification</h2>
         <p className="text-gray-400 text-center mb-6">Enter the OTP sent to your registered Email-ID</p>
 
         <form className="space-y-5" onSubmit={handleOtpSubmit}>
