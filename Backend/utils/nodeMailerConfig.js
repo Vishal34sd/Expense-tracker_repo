@@ -18,7 +18,7 @@ const sendEmail = async (email , otp) => {
     from: process.env.USER,
     to: email,
     subject: "Login OTP",
-    text: `The OTP for Login in our Expense Traker Website is ${otp} . It is only valid for 5 minutes .`, 
+    text: `The OTP for Login in our Expense Tracker Website is ${otp} . It is only valid for 5 minutes .`, 
   };
 
   try {
