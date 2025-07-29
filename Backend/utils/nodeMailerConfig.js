@@ -17,8 +17,10 @@ const sendEmail = async (email , otp) => {
   const mailOptions = {
     from: process.env.USER,
     to: email,
-    subject: "Login OTP",
-    text: `The OTP for Login in our Expense Tracker Website is ${otp} . It is only valid for 5 minutes .`, 
+    subject: "OTP for Email Verification",
+    text: `Welcome to our Expense Tracker Website !\n
+    The OTP for Email Verification is ${otp} . It is only valid for 5 minutes .\n
+    Thanks for registering on our website`, 
   };
 
   try {
