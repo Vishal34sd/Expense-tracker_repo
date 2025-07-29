@@ -40,7 +40,7 @@ const userRegister = async (req, res) => {
       password: hashedPassword
     });
 
-     const  savedUser= await newUser.save();
+     const  savedUser = await newUser.save();
 
     if (!savedUser) {
       return res.status(400).json({
@@ -48,12 +48,33 @@ const userRegister = async (req, res) => {
         message: "User registration failed"
       });
     }
+     // Creation of otp and saving it to DataBase
+    const otp = otpGenerator();
+    await sendEmail(email , otp);
+    savedUser.otp = otp ;
+    savedUser.expiresIn = Date.now() + 10*60*1000 ; // otp expires in 10min
+    await savedUser.save();
+
+    const accessToken = await jwt.sign({
+      userId : savedUser._id ,
+      username :  savedUser.username,
+      email :  savedUser.email,
+    }, process.env.JWT_SECRET_KEY, {expiresIn : "30m"});
+
+    if(!accessToken){
+      return res.status(404).json({
+        success : false ,
+        message : "access token cannot be created"
+      })
+    }
 
     res.status(201).json({
       success: true,
       message: "User registered successfully",
-      data : newUser
+      data : savedUser,
+      token : accessToken
     });
+
   } catch (err) {
     console.error("Registration error:", err);
     res.status(500).json({
@@ -80,6 +101,11 @@ const userLogin = async(req , res)=>{
         message : "Password is incorrect"
       })
     }
+
+    if (!emailExist.isVerified) {
+      return res.status(403).json({ msg: "Please verify your email first" });
+    }
+
     const accessToken = await jwt.sign({
       userId : emailExist._id ,
       username : emailExist.username,
@@ -94,19 +120,12 @@ const userLogin = async(req , res)=>{
         message : "Login failed"
       })
     }
-// Creation of otp and saving it to DataBase
-    const otp = otpGenerator();
-    await sendEmail(email , otp);
-    emailExist.otp = otp ;
-    emailExist.expiresIn = Date.now() + 10*60*1000 ; // otp expires in 10min
-    await emailExist.save();
-
 
     return res.status(200).json({
       success : true ,
       message : "Login successfull",
       token : accessToken,
-      otp : otp
+      
     })
 
   }
@@ -148,6 +167,7 @@ const verifyOTP = async (req, res) => {
 
     userEmail.otp = null;
     userEmail.expiresIn = null;
+    userEmail.isVerified = true
     await userEmail.save();
 
     return res.status(200).json({

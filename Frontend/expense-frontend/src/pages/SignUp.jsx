@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import {useState} from "react"
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { storeToken } from "../utils/token";
 
 const SignUp = () => {
 
@@ -16,7 +17,8 @@ const SignUp = () => {
       try{
       const res = await  axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/register`, {username, email, password});
       console.log(res.data);
-      navigate("/login");
+      storeToken(res.data.token);
+      navigate("/otp-verify");
 
     }
     catch(err){

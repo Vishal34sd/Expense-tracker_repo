@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     expiresIn : {
         type : Date
     },
-    isExpired : {
+    isVerified : {
         type : Boolean ,
         default : false
     }
