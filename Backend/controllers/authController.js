@@ -62,7 +62,7 @@ const userRegister = async (req, res) => {
     }, process.env.JWT_SECRET_KEY, {expiresIn : "30m"});
 
     if(!accessToken){
-      return res.status(404).json({
+      return res.status(401).json({
         success : false ,
         message : "access token cannot be created"
       })
