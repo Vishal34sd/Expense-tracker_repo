@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 8080;
 dbConnection();
 
 
-const allowedOrigins = ['https://expense-tracker-repo-3p8w.vercel.app'];
+const allowedOrigins = ['https://expense-tracker-repo-3p8w.vercel.app', 'http://localhost:5173'];
 
 
 const corsOptions = {
