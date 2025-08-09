@@ -16,8 +16,8 @@ const SignUp = () => {
 
     const formHandler = async(event)=>{
       event.preventDefault();
-      try{
       setShowLoader(true);
+      try{
       const res = await  axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/register`, {username, email, password});
       console.log(res.data);
       storeToken(res.data.token);
