@@ -11,11 +11,13 @@ const SignUp = () => {
     const [email , setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword , setShowPassword] = useState("");
+     const [showLoader , setShowLoader] = useState(false);
     const navigate= useNavigate();
 
     const formHandler = async(event)=>{
       event.preventDefault();
       try{
+      setShowLoader(true);
       const res = await  axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/register`, {username, email, password});
       console.log(res.data);
       storeToken(res.data.token);
@@ -73,9 +75,9 @@ const SignUp = () => {
 
           <button
             type="submit"
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg hover:shadow-teal-600 "
+            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg "
           >
-            Sign Up
+            {showLoader?<img className="mx-auto w-16 h-16 bg-transparent" src="/loader-unscreen.gif"></img>:"Sign-Up"}
           </button>
         </form>
 
