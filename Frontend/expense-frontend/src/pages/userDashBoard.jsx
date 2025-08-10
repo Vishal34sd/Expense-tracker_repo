@@ -85,8 +85,13 @@ const UserDashboard = () => {
       </aside>
 
       <main className="flex-1 p-6">
+        <div className="flex justify-between">
+          <div className="flex flex-col" >
         <h1 className="text-3xl font-bold text-teal-400 mb-2">Welcome, {decodedData.username}</h1>
         <p className="text-gray-400 mb-8">Here’s your financial overview:</p>
+        </div>
+        <Link to="/ask-chatbot"><button className="bg-amber-300 text-black w-fit h-fit rounded-2xl p-3 font-bold">Chat with AI-Assistant</button></Link>
+        </div>
 
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
           <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
