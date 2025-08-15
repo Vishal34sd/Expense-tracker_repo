@@ -60,10 +60,6 @@ const appRouter = createBrowserRouter([
     element: <AskChatbot/>
   },
 
-
-
-
-
 ]);
 
 createRoot(document.getElementById('root')).render(

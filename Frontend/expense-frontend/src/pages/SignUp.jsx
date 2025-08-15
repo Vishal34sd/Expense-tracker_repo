@@ -76,9 +76,9 @@ const SignUp = () => {
 
           <button
             type="submit"
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg "
+            className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg "
           >
-            {showLoader?<img className="mx-auto w-16 h-16 bg-transparent" src="/loader-unscreen.gif"></img>:"Sign-Up"}
+            {showLoader?<img className="mx-auto w-16 h-16 bg-transparent p-0" src="/loader-unscreen.gif"></img>:"Sign-Up"}
           </button>
         </form>
 

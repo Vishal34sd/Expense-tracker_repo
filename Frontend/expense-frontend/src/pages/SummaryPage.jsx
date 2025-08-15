@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { getToken } from "../utils/token.js"; 
+import { decodeToken, getToken } from "../utils/token.js";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -10,7 +10,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ViewSummary = () => {
   const [transactions, setTransactions] = useState([]);
-  const [budget, setBudget] = useState(10000); 
+  const [budget, setBudget] = useState(10000);
   const [totalSpent, setTotalSpent] = useState(0);
   const [percentSpent, setPercentSpent] = useState(0);
   const [mostSpentCategory, setMostSpentCategory] = useState(["N/A", 0]);
@@ -18,7 +18,9 @@ const ViewSummary = () => {
   const [categoryData, setCategoryData] = useState({});
   const [pieData, setPieData] = useState({});
   const summaryRef = useRef();
-  const username = "User"; // replace with actual logged-in username
+  
+  const userInfo = decodeToken(getToken());
+  const username = userInfo.username ;
 
   useEffect(() => {
     fetchData();
@@ -64,43 +66,50 @@ const ViewSummary = () => {
   };
 
   const downloadPDF = () => {
-  const currentDate = new Date();
-  const dateString = currentDate.toLocaleDateString();
-  const timeString = currentDate.toLocaleTimeString();
+    const currentDate = new Date();
+    const dateString = currentDate.toLocaleDateString();
+    const timeString = currentDate.toLocaleTimeString();
 
-  const input = summaryRef.current;
-  html2canvas(input, { scale: 2, backgroundColor: "#1f2937" })
-    .then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
+    const input = summaryRef.current;
+    html2canvas(input, { scale: 2, backgroundColor: "#1f2937" })
+      .then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "mm", "a4");
 
-      const imgWidth = 190;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const imgWidth = 195;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      // Add the captured image
-      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
 
-      // Footer: stacked vertically with same X-position
-      pdf.setFontSize(12);
-      pdf.setTextColor(0, 0, 0); // black color
-      const footerX = 10; // same horizontal start
-      const footerY = pageHeight - 30; // start a bit above bottom
-      pdf.text(`Downloaded by: ${username}`, footerX, footerY);
-      pdf.text(`Date: ${dateString}`, footerX, footerY + 6);
-      pdf.text(`Time: ${timeString}`, footerX, footerY + 12);
+        pdf.addImage(imgData, "PNG", 7, 7, imgWidth, imgHeight);
 
-      pdf.save(`Expense-Summary.pdf`);
-    });
-};
+
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 0, 0);
+        const footerX = 10;
+        const footerY = pageHeight - 30;
+        pdf.text(`Downloaded by: ${username}`, footerX, footerY);
+        pdf.text(`Date: ${dateString}`, footerX, footerY + 6);
+        pdf.text(`Time: ${timeString}`, footerX, footerY + 12);
+
+        pdf.save(`Expense-Summary-${username}.pdf`);
+      });
+  };
 
   return (
     <div className="min-h-screen py-10 px-6 md:px-20" style={{ backgroundColor: "#111827", color: "#f9fafb" }}>
       <div ref={summaryRef} className="p-6 rounded-2xl shadow-xl max-w-6xl mx-auto" style={{ backgroundColor: "#1f2937" }}>
         <h2 className="text-3xl font-bold mb-6 text-center" style={{ color: "#14b8a6" }}>📊 Expense Summary</h2>
-        <button onClick={downloadPDF} style={{ backgroundColor: "#facc15", color: "#1f2937" }} className="px-4 py-2 rounded-md mb-6">
-          Download Summary
-        </button>
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={downloadPDF}
+            style={{ backgroundColor: "#facc15", color: "#1f2937" }}
+            className="px-4 py-2 rounded-md font-bold"
+          >
+            Download Summary
+          </button>
+        </div>
+
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           <div style={{ backgroundColor: "#111827" }} className="p-6 rounded-xl">
@@ -173,8 +182,8 @@ const ViewSummary = () => {
               {totalSpent > budget
                 ? "You've crossed your monthly budget. Consider limiting non-essential expenses like shopping or food deliveries."
                 : totalSpent > 0.75 * budget
-                ? "You're close to hitting your budget. Monitor your spending carefully in the coming days."
-                : "You're managing your budget well. Keep tracking regularly!"}
+                  ? "You're close to hitting your budget. Monitor your spending carefully in the coming days."
+                  : "You're managing your budget well. Keep tracking regularly!"}
             </p>
           </div>
         </div>
