@@ -17,7 +17,6 @@ const SignIn = () => {
     event.preventDefault();
     setShowLoader(true);
     try{
-      setShowLoader(true);
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/login`, {email , password});
       storeToken(res.data.token);
       if(!res){
