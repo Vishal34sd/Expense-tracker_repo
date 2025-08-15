@@ -4,6 +4,7 @@ import {useState} from "react"
 import { useNavigate } from "react-router-dom";
 import axios from "axios"
 import { storeToken } from "../utils/token";
+import Swal from "sweetalert2";
 
 const SignIn = () => {
   const [email , setEmail] = useState("")
@@ -18,6 +19,22 @@ const SignIn = () => {
     try{
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/login`, {email , password});
       storeToken(res.data.token);
+      if(!res){
+        Swal.fire({
+          title : "Login Failed",
+          text : "Please try again !",
+          timer : 3000
+
+        });
+      }
+      else{
+        Swal.fire({
+          title : "Login Successfull",
+          text : "Welcome back !",
+          timer : 3000,
+        
+        });
+      }
       navigate("/dashboard")
     }
     catch(err){
@@ -61,9 +78,9 @@ const SignIn = () => {
 
           <button
             type="submit"
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg "
+            className="w-full h-12 flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg "
           >
-            {showLoader?<img className="mx-auto w-16 h-16 bg-transparent" src="/loader-unscreen.gif"></img>:"Sign-In"}
+            {showLoader?<img className=" w-12 h-12 p-0 bg-transparent" src="/loader-unscreen.gif"></img>:"Sign-In"}
           </button>
         </form>
 

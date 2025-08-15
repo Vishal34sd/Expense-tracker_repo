@@ -12,6 +12,7 @@ import ViewSummary from './pages/SummaryPage.jsx'
 import Home from './pages/Home.jsx'
 import OTP_Page from './pages/OTP_Page.jsx'
 import ChangePassword from './pages/ChangePassword.jsx'
+import AskChatbot from './pages/AskChatbot.jsx'
 
 const appRouter = createBrowserRouter([
   {
@@ -53,10 +54,11 @@ const appRouter = createBrowserRouter([
    {
     path: "/changePassword",
     element: <ChangePassword/>
-  }
-
-
-
+  },
+  {
+    path: "/ask-chatbot",
+    element: <AskChatbot/>
+  },
 
 ]);
 
