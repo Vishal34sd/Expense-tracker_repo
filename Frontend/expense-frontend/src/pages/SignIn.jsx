@@ -4,17 +4,37 @@ import {useState} from "react"
 import { useNavigate } from "react-router-dom";
 import axios from "axios"
 import { storeToken } from "../utils/token";
+import Swal from "sweetalert2";
 
 const SignIn = () => {
   const [email , setEmail] = useState("")
   const [password , setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
+  const [showLoader , setShowLoader] = useState(false);
   const navigate = useNavigate();
 
   const formHandler = async(event)=>{
     event.preventDefault();
+    setShowLoader(true);
     try{
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/login`, {email , password});
       storeToken(res.data.token);
+      if(!res){
+        Swal.fire({
+          title : "Login Failed",
+          text : "Please try again !",
+          timer : 3000
+
+        });
+      }
+      else{
+        Swal.fire({
+          title : "Login Successfull",
+          text : "Welcome back !",
+          timer : 3000,
+        
+        });
+      }
       navigate("/dashboard")
     }
     catch(err){
@@ -38,22 +58,29 @@ const SignIn = () => {
               onChange ={(e)=>setEmail(e.target.value)}
             />
           </div>
-          <div>
+          <div className="relative">
             <label className="block text-sm text-gray-300 mb-1">Password</label>
             <input
-              type="password"
+              type= {showPassword? "text" : "password"}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="Enter password"
               value = {password}
               onChange = {(e)=>setPassword(e.target.value)}
             />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-8 cursor-pointer text-sm text-teal-400 select-none"
+              >
+                {showPassword ? "Hide": "Show"}
+              </span>
+
           </div>
 
           <button
             type="submit"
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg hover:shadow-teal-600"
+            className="w-full h-12 flex items-center justify-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg "
           >
-            Sign In
+            {showLoader?<img className=" w-12 h-12 p-0 bg-transparent" src="/loader-unscreen.gif"></img>:"Sign-In"}
           </button>
         </form>
 

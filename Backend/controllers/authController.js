@@ -62,7 +62,7 @@ const userRegister = async (req, res) => {
     }, process.env.JWT_SECRET_KEY, {expiresIn : "30m"});
 
     if(!accessToken){
-      return res.status(404).json({
+      return res.status(401).json({
         success : false ,
         message : "access token cannot be created"
       })
@@ -183,4 +183,40 @@ const verifyOTP = async (req, res) => {
   }
 };
 
-export { userRegister , userLogin , verifyOTP};
+const changePassword = async(req, res)=>{
+  const userId = req.userInfo.userId ;
+  const {oldPassword , newPassword} = req.body;
+  const userExist = await User.findById(userId);
+  if(!userExist){
+    return res.status(404).json({
+      success : false ,
+      message : "User not exist"
+    })
+  }
+
+  const comparePassword = await bcrypt.compare(oldPassword , userExist.password);
+  if(!comparePassword){
+    return res.status(400).json({
+      success : false , 
+      message : "Wrong password provided! Please try again ."
+    })
+  }
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword , salt);
+
+  userExist.password = hashedPassword;
+  const savedUser = await userExist.save();
+  if(!savedUser){
+    return res.status(400).json({
+      success : false ,
+      message : "Sorry ! something went wrong"
+    })
+  }
+  return res.status(200).json({
+    success : true ,
+    message : "Password changed successfully"
+  })
+  
+}
+
+export { userRegister , userLogin , verifyOTP, changePassword};
