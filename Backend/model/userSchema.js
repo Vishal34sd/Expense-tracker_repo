@@ -1,35 +1,42 @@
-
 import mongoose from "mongoose";
 
-
 const userSchema = new mongoose.Schema({
-    username : {
-        type : String ,
-        required : true ,
-        trim : true ,
+    username: {
+        type: String,
+        required: true,
+        trim: true,
     },
-    email : {
-            type : String ,
-            required : true ,
-            trim : true ,
-            unique : true
-        },
-    password : {
-        type : String ,
-        required : true ,
-        trim : true ,
+    email: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true,
     },
-    otp : {
-        type : String ,
+    password: {
+        type: String,
+        required: true,
+        trim: true,
     },
-    expiresIn : {
-        type : Date
+    otp: {
+        type: String,
     },
-    isVerified : {
-        type : Boolean ,
-        default : false
-    }
-},{ timeStamps : true}) ;
+    expiresIn: {
+        type: Date,
+    },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+
+    // ----- New fields for rate limiting -----
+    searchCount: {
+        type: Number,
+        default: 0,
+    },
+    lastSearchDate: {
+        type: Date,
+    },
+}, { timestamps: true });
 
 const userModel = mongoose.model("User", userSchema);
-export default userModel ;
+export default userModel;

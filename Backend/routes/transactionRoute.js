@@ -13,7 +13,7 @@ router.get("/recent", authMiddleware ,recentTransaction );
 
 //chatbot route
 
-router.post("/ask-chatbot",askChatBot);
+router.post("/ask-chatbot",authMiddleware , askChatBot);
 
 
 
