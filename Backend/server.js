@@ -1,6 +1,5 @@
 import express from "express";
-// We no longer need the 'cors' package, so you can remove the import if you like.
-import cors from "cors"; 
+import cors from "cors";
 import dotenv from "dotenv";
 import dbConnection from "./database/db.js";
 import transactionRoutes from "./routes/transactionRoute.js";
@@ -11,42 +10,36 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// This is still CRITICAL. It ensures Express trusts the 'https' protocol
-// information coming from Render's proxy.
+// This is important for deployment on services like Render.
 app.set('trust proxy', 1);
 
 // Connect to the database
 dbConnection();
 
-// List of origins that are allowed to access your backend
+// --- CORS Configuration ---
+// List of frontend URLs that are allowed to access your backend.
 const allowedOrigins = [
-  'https://expense-tracker-repo-3p8w.vercel.app',
-  'http://localhost:5173' // For local development
+  'https://expense-tracker-repo-3p8w.vercel.app', // Your Vercel deployment
+  'http://localhost:5173'                         // Your local development environment
 ];
 
-// --- Custom CORS Middleware: A Direct Approach ---
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
 
-  // If the request's origin is in our allowed list, set the header.
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  optionsSuccessStatus: 200 // For legacy browser support
+};
 
-  // Set other necessary CORS headers.
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+app.use(cors(corsOptions));
 
-  // The browser sends an OPTIONS request first to check permissions (a "preflight" request).
-  // We must handle it by sending a success status.
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-
-  // If it's not a preflight request, move on to the next middleware/route handler.
-  next();
-});
 
 // JSON and URL-encoded parsers
 app.use(express.json());
