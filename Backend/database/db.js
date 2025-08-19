@@ -8,7 +8,9 @@ const dbConnection =  async ()=>{
         console.log("Database connected succesfully ");
     }
     catch(err){
-        console.log(err);
+        console.error("MongoDB connection error:", err.message);
+  console.error("Error code:", err.code);
+  console.error("Topology info:", err.reason);
     }
 }
 

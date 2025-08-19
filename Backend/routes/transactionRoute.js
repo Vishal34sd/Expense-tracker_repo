@@ -15,6 +15,9 @@ router.get("/recent", authMiddleware ,recentTransaction );
 
 router.post("/ask-chatbot",authMiddleware , askChatBot);
 
+//show chat
+// router.get("/chat-history", showChat);
+
 
 
 
