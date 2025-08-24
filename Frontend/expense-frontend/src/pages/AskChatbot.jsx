@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { getToken } from "../utils/token";
 import ReactMarkdown from "react-markdown";
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 const AskChatbot = () => {
   const MAX_SEARCHES = 3;
@@ -66,15 +67,33 @@ const AskChatbot = () => {
     return <ReactMarkdown>{displayedWords.join(" ")}</ReactMarkdown>;
   };
 
+ 
+  const {
+    transcript,
+    listening,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+
+  if (!browserSupportsSpeechRecognition) {
+    alert("Browser doesn't support speech recognition.");
+  }
+
+  useEffect(() => {
+    if (transcript && transcript.trim().length > 0) {
+      setUserQuestion(transcript); // put transcript into input
+    }
+  }, [transcript]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center px-4">
       <div className="bg-gray-900 border border-gray-700 shadow-xl rounded-2xl p-10 sm:p-12 w-full max-w-3xl flex flex-col">
         <h2 className="text-4xl font-bold text-yellow-400 mb-4 text-center">
           AI Expense Assistant
         </h2>
-        <p className="text-gray-400 text-center mb-8 text-lg">
+        <p className="text-gray-400 text-center mb-8 text-lg ">
           Ask anything about your expenses
         </p>
+      
 
         <div className="flex gap-3 mb-6">
           <input
@@ -84,13 +103,15 @@ const AskChatbot = () => {
               setUserQuestion(e.target.value);
               setResponse(""); // Clear old response
             }}
-            className="flex-1 p-3 rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
+            className="flex-1 p-3 rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-400 h-12"
             placeholder="Type your question..."
           />
+          <button className=" bg-amber-300 w-20 rounded-lg h-12" 
+               onClick={() => SpeechRecognition.startListening({ continuous: false })}><img className="w-10 h-10 bg-transparent mx-auto" src="new_mic.png"></img></button>
           <button
             onClick={handleSearch}
             disabled={searchCount >= MAX_SEARCHES}
-            className={`px-6 py-3 min-w-24 h-14 text-white font-semibold rounded-md transition-all duration-300 shadow-lg text-lg ${
+            className={`px-6 py-3 min-w-24 h-12  text-white font-semibold rounded-md transition-all duration-300 shadow-lg text-lg ${
               searchCount >= MAX_SEARCHES
                 ? "bg-gray-500 cursor-not-allowed"
                 : "bg-teal-500 hover:bg-teal-600"
