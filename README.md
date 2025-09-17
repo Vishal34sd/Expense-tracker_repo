@@ -31,20 +31,5 @@ Built with the **MERN stack (MongoDB, Express, React, Node.js)**, this platform 
 
 This is more than just an expense tracker — it's a **smart financial assistant**. Whether you want to query your expenses using voice, chat naturally with the AI, or download detailed PDF reports, this platform gives a **personalized and interactive experience** to manage your finances efficiently.
 
-PROJECT STRUCTURE-
-expense-tracker/
-│-- backend/ # Express + MongoDB
-│ ├── models/ # Mongoose schemas
-│ ├── routes/ # API routes
-│ ├── server.js # Entry point
-│
-│-- frontend/ # React app
-│ ├── src/
-│ │ ├── components/
-│ │ ├── pages/
-│ │ ├── App.js
-│ │ ├── index.js
-│
-│-- README.md # Project documentation
-│-- package.json
+
 
