@@ -77,11 +77,11 @@ const SignUp = () => {
 
           <button
             type="submit"
-            className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg"
+            className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-md transition-all duration-300 shadow-lg flex items-center justify-center"
           >
             {showLoader ? (
               <img
-                className="mx-auto w-16 h-16 bg-transparent p-0"
+                className="w-12 h-12" 
                 src="/loader-unscreen.gif"
                 alt="loading"
               />
@@ -89,6 +89,7 @@ const SignUp = () => {
               "Sign-Up"
             )}
           </button>
+
         </form>
 
         <p className="mt-6 text-sm text-gray-400 text-center">
