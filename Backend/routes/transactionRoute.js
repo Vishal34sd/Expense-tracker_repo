@@ -2,6 +2,7 @@ import express from "express";
 import { getAllTransaction , addTransaction, editTransaction , deleteTransaction , recentTransaction} from "../controllers/transactionController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import { askChatBot } from "../controllers/chatBotController.js";
+import {showChat } from "../controllers/showChat.js";
 const router = express.Router();
 
 
@@ -16,7 +17,7 @@ router.get("/recent", authMiddleware ,recentTransaction );
 router.post("/ask-chatbot",authMiddleware , askChatBot);
 
 //show chat
-// router.get("/chat-history", showChat);
+router.get("/chat-history", authMiddleware , showChat);
 
 
 

@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import Transaction from "../model/transactionSchema.js"; 
+import Question from "../model/questionSchema.js"
 import { flashModel } from "../utils/gemini.js";
 import User from "../model/userSchema.js";
 
@@ -56,6 +57,18 @@ User question: ${userQuestion}`;
       reply: result.response.text(), 
       count: userInfo.searchCount
     });
+
+    try {
+      const question = new Question({
+        userId,
+        question: userQuestion,
+        answers:  result.response.text(),
+      });
+      await question.save();
+      console.log("Question saved successfully!");
+    } catch (saveErr) {
+      console.error("Error saving question:", saveErr);
+    }
 
   } catch (err) {
     console.error("Error in askChatBot:", err);
