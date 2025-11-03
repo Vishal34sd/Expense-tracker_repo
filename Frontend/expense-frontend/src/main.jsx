@@ -13,6 +13,7 @@ import Home from './pages/Home.jsx'
 import OTP_Page from './pages/OTP_Page.jsx'
 import ChangePassword from './pages/ChangePassword.jsx'
 import AskChatbot from './pages/AskChatbot.jsx'
+import NotFoundPage from './pages/NotFoundPage.jsx'
 
 const appRouter = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ const appRouter = createBrowserRouter([
   {
     path: "/ask-chatbot",
     element: <AskChatbot/>
+  },
+  {
+    path: "*",
+    element: <NotFoundPage/>
   },
 
 ]);
