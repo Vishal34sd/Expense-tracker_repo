@@ -12,24 +12,23 @@ const AllTransactions = () => {
     note: "",
   });
 
-  
   useEffect(() => {
     transactionData();
   }, []);
 
   const transactionData = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,{
-        headers : {
-          Authorization : `Bearer ${getToken()}`
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,
+        {
+          headers: { Authorization: `Bearer ${getToken()}` },
         }
-      });
+      );
       setTransaction(res.data.data);
     } catch (err) {
       console.error(err);
     }
   };
-
 
   const handleEditButton = (item) => {
     setEditId(item._id);
@@ -41,41 +40,32 @@ const AllTransactions = () => {
     });
   };
 
-  
   const handleUpdateTransaction = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/edit/${editId}`,  editTransaction , {
-          headers : {
-            Authorization : `Bearer ${getToken()}`
-          }
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/edit/${editId}`,
+        editTransaction,
+        {
+          headers: { Authorization: `Bearer ${getToken()}` },
         }
-       
       );
-
       const updatedTxn = res.data.data;
-
-      
-      const updatedList = transaction.map((item) =>
-        item._id === editId ? updatedTxn : item
+      setTransaction((prev) =>
+        prev.map((item) => (item._id === editId ? updatedTxn : item))
       );
-
-      setTransaction(updatedList);
-      setEditId(null); 
+      setEditId(null);
     } catch (err) {
       console.error("Update failed:", err);
     }
   };
 
-  
   const handleDelete = async (item) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/v1/delete/${item._id}`,
+      await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/delete/${item._id}`,
         {
-          headers : {
-            Authorization : `Bearer ${getToken()}`
-          }
+          headers: { Authorization: `Bearer ${getToken()}` },
         }
       );
       setTransaction(transaction.filter((txn) => txn._id !== item._id));
@@ -85,75 +75,101 @@ const AllTransactions = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6">
-      <h1 className="text-3xl font-bold text-teal-400 mb-6 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white px-3 sm:px-6 py-6">
+      <h1 className="text-2xl sm:text-3xl font-bold text-teal-400 mb-6 text-center">
         All Transactions
       </h1>
 
+      {/* Table Container */}
       <div className="overflow-x-auto bg-gray-900 border border-gray-700 rounded-2xl shadow-md">
-        <table className="min-w-full text-sm text-gray-300">
+        <table className="min-w-full text-sm sm:text-base text-gray-300">
           <thead className="bg-gray-800 text-gray-400 uppercase text-left">
             <tr>
-              <th className="p-4">#</th>
-              <th className="p-4">Type</th>
-              <th className="p-4">Amount</th>
-              <th className="p-4">Category</th>
-              <th className="p-4">Note</th>
-              <th className="p-4">Date</th>
-              <th className="p-4">Actions</th>
+              <th className="p-3 sm:p-4">#</th>
+              <th className="p-3 sm:p-4">Type</th>
+              <th className="p-3 sm:p-4">Amount</th>
+              <th className="p-3 sm:p-4">Category</th>
+              <th className="p-3 sm:p-4">Note</th>
+              <th className="p-3 sm:p-4">Date</th>
+              <th className="p-3 sm:p-4 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {transaction.map((txn, index) => {
-              const isIncome = txn.type.toLowerCase() === "income";
-              const typeColor = isIncome ? "text-green-400" : "text-red-400";
-              const amountColor = isIncome ? "text-green-300" : "text-red-300";
+            {transaction.length > 0 ? (
+              transaction.map((txn, index) => {
+                const isIncome = txn.type.toLowerCase() === "income";
+                const typeColor = isIncome ? "text-green-400" : "text-red-400";
+                const amountColor = isIncome ? "text-green-300" : "text-red-300";
 
-              return (
-                <tr
-                  key={txn._id}
-                  className="border-b border-gray-700 hover:bg-gray-800 transition"
+                return (
+                  <tr
+                    key={txn._id}
+                    className="border-b border-gray-700 hover:bg-gray-800 transition"
+                  >
+                    <td className="p-3 sm:p-4">{index + 1}</td>
+                    <td className={`p-3 sm:p-4 font-medium ${typeColor}`}>
+                      {txn.type}
+                    </td>
+                    <td className={`p-3 sm:p-4 font-bold ${amountColor}`}>
+                      ₹ {txn.amount}
+                    </td>
+                    <td className="p-3 sm:p-4">{txn.category}</td>
+                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                      {txn.note || "-"}
+                    </td>
+                    <td className="p-3 sm:p-4">
+                      {txn.date ? txn.date.slice(0, 10) : "-"}
+                    </td>
+                    <td className="p-3 sm:p-4 flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center items-center">
+                      <button
+                        className="bg-teal-500 hover:bg-teal-600 text-white px-3 py-1 rounded text-xs sm:text-sm transition-all duration-200"
+                        onClick={() => handleEditButton(txn)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(txn)}
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs sm:text-sm transition-all duration-200"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td
+                  colSpan="7"
+                  className="text-center text-gray-400 py-6 text-sm sm:text-base"
                 >
-                  <td className="p-4">{index + 1}</td>
-                  <td className={`p-4 font-medium ${typeColor}`}>{txn.type}</td>
-                  <td className={`p-4 font-bold ${amountColor}`}>₹ {txn.amount}</td>
-                  <td className="p-4">{txn.category}</td>
-                  <td className="p-4 text-sm">{txn.note}</td>
-                  <td className="p-4">{txn.date ? txn.date.slice(0,10) : "-"}</td>
-                  <td className="p-4">
-                    <button
-                      className="bg-teal-500 hover:bg-teal-600 text-white px-3 py-1 rounded text-xs m-3"
-                      onClick={() => handleEditButton(txn)}
-                    >
-                      Edit
-                    </button>
-                     <button
-                      onClick={() => handleDelete(txn)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+                  No transactions found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      
-      {editId ? (
-        <div className="mt-8 bg-gray-900 border border-gray-700 rounded-2xl shadow-md p-6 max-w-xl mx-auto">
-          <h2 className="text-2xl font-semibold text-teal-400 mb-4 text-center">
+      {/* Edit Form */}
+      {editId && (
+        <div className="mt-8 bg-gray-900 border border-gray-700 rounded-2xl shadow-md p-5 sm:p-6 max-w-xl mx-auto">
+          <h2 className="text-xl sm:text-2xl font-semibold text-teal-400 mb-4 text-center">
             Edit Transaction
           </h2>
-          <form onSubmit={handleUpdateTransaction} className="grid gap-4">
+          <form
+            onSubmit={handleUpdateTransaction}
+            className="grid gap-4 text-sm sm:text-base"
+          >
             <select
               value={editTransaction.type}
               onChange={(e) =>
-                setEditTransaction({ ...editTransaction, type: e.target.value })
+                setEditTransaction({
+                  ...editTransaction,
+                  type: e.target.value,
+                })
               }
-              className="p-2 rounded bg-gray-800 text-white border border-gray-700"
+              className="p-2 rounded bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-teal-500"
             >
               <option value="expense">Expense</option>
               <option value="income">Income</option>
@@ -163,9 +179,12 @@ const AllTransactions = () => {
               type="number"
               value={editTransaction.amount}
               onChange={(e) =>
-                setEditTransaction({ ...editTransaction, amount: e.target.value })
+                setEditTransaction({
+                  ...editTransaction,
+                  amount: e.target.value,
+                })
               }
-              className="p-2 rounded bg-gray-800 text-white border border-gray-700"
+              className="p-2 rounded bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-teal-500"
               placeholder="Amount"
               required
             />
@@ -174,9 +193,12 @@ const AllTransactions = () => {
               type="text"
               value={editTransaction.category}
               onChange={(e) =>
-                setEditTransaction({ ...editTransaction, category: e.target.value })
+                setEditTransaction({
+                  ...editTransaction,
+                  category: e.target.value,
+                })
               }
-              className="p-2 rounded bg-gray-800 text-white border border-gray-700"
+              className="p-2 rounded bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-teal-500"
               placeholder="Category"
               required
             />
@@ -185,30 +207,33 @@ const AllTransactions = () => {
               type="text"
               value={editTransaction.note}
               onChange={(e) =>
-                setEditTransaction({ ...editTransaction, note: e.target.value })
+                setEditTransaction({
+                  ...editTransaction,
+                  note: e.target.value,
+                })
               }
-              className="p-2 rounded bg-gray-800 text-white border border-gray-700"
+              className="p-2 rounded bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-teal-500"
               placeholder="Note"
             />
 
-            <div className="flex gap-4 justify-center mt-4">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mt-4">
               <button
                 type="submit"
-                className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded"
+                className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded transition-all duration-300"
               >
                 Update
               </button>
               <button
                 type="button"
                 onClick={() => setEditId(null)}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-all duration-300"
               >
                 Cancel
               </button>
             </div>
           </form>
         </div>
-      ) : null}
+      )}
     </div>
   );
 };
