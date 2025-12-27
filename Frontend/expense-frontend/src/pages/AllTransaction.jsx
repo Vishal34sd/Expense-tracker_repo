@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { getToken } from "../utils/token";
 
 const AllTransactions = () => {
   const [transaction, setTransaction] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editId, setEditId] = useState(null);
   const [editTransaction, setEditTransaction] = useState({
     type: "expense",
@@ -27,6 +29,8 @@ const AllTransactions = () => {
       setTransaction(res.data.data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -90,56 +94,76 @@ const AllTransactions = () => {
         All Transactions
       </h1>
 
-      <div className="overflow-x-auto bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md">
-        <table className="min-w-full text-sm text-purple-200/80">
-          <thead className="bg-purple-900/20 text-purple-200/60 uppercase text-left">
-            <tr>
-              <th className="p-4">#</th>
-              <th className="p-4">Type</th>
-              <th className="p-4">Amount</th>
-              <th className="p-4">Category</th>
-              <th className="p-4">Note</th>
-              <th className="p-4">Date</th>
-              <th className="p-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transaction.map((txn, index) => {
-              const isIncome = txn.type.toLowerCase() === "income";
-              const typeColor = isIncome ? "text-green-400" : "text-red-400";
-              const amountColor = isIncome ? "text-green-300" : "text-red-300";
+      {isLoading ? (
+        <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md p-6 text-purple-200/80">
+          Loading transactions…
+        </div>
+      ) : transaction.length === 0 ? (
+        <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md p-8 text-center">
+          <h2 className="text-2xl font-bold text-purple-200">No data present</h2>
+          <p className="text-purple-200/70 mt-2">No transactions found.</p>
 
-              return (
-                <tr
-                  key={txn._id}
-                  className="border-b border-purple-500/10 hover:bg-purple-900/10 transition"
-                >
-                  <td className="p-4">{index + 1}</td>
-                  <td className={`p-4 font-medium ${typeColor}`}>{txn.type}</td>
-                  <td className={`p-4 font-bold ${amountColor}`}>₹ {txn.amount}</td>
-                  <td className="p-4">{txn.category}</td>
-                  <td className="p-4 text-sm">{txn.note}</td>
-                  <td className="p-4">{txn.date ? txn.date.slice(0,10) : "-"}</td>
-                  <td className="p-4">
-                    <button
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs m-3"
-                      onClick={() => handleEditButton(txn)}
-                    >
-                      Edit
-                    </button>
-                     <button
-                      onClick={() => handleDelete(txn)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+          <div className="mt-6">
+            <Link
+              to="/add"
+              className="inline-block bg-purple-600 hover:bg-purple-700 text-white rounded-2xl px-5 py-3 font-bold transition"
+            >
+              Add New Expense
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="overflow-x-auto bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md">
+          <table className="min-w-full text-sm text-purple-200/80">
+            <thead className="bg-purple-900/20 text-purple-200/60 uppercase text-left">
+              <tr>
+                <th className="p-4">#</th>
+                <th className="p-4">Type</th>
+                <th className="p-4">Amount</th>
+                <th className="p-4">Category</th>
+                <th className="p-4">Note</th>
+                <th className="p-4">Date</th>
+                <th className="p-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transaction.map((txn, index) => {
+                const isIncome = txn.type.toLowerCase() === "income";
+                const typeColor = isIncome ? "text-green-400" : "text-red-400";
+                const amountColor = isIncome ? "text-green-300" : "text-red-300";
+
+                return (
+                  <tr
+                    key={txn._id}
+                    className="border-b border-purple-500/10 hover:bg-purple-900/10 transition"
+                  >
+                    <td className="p-4">{index + 1}</td>
+                    <td className={`p-4 font-medium ${typeColor}`}>{txn.type}</td>
+                    <td className={`p-4 font-bold ${amountColor}`}>₹ {txn.amount}</td>
+                    <td className="p-4">{txn.category}</td>
+                    <td className="p-4 text-sm">{txn.note}</td>
+                    <td className="p-4">{txn.date ? txn.date.slice(0,10) : "-"}</td>
+                    <td className="p-4">
+                      <button
+                        className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs m-3"
+                        onClick={() => handleEditButton(txn)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(txn)}
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       
       {editId ? (

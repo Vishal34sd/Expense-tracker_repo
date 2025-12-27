@@ -7,22 +7,32 @@ const Navbar = () => {
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-purple-900/20 border-b border-purple-500/20"
+      className="fixed top-6 left-0 right-0 z-50 px-6"
     >
       {/* Main Navbar Container */}
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Brand Section */}
         <motion.h1
           whileHover={{ scale: 1.05 }}
-          className="text-xl font-bold tracking-wide text-purple-300"
+          className="text-4xl font-bold tracking-wide text-white"
         >
           smartExpense
         </motion.h1>
 
         {/* Menu Section */}
-        <div className="hidden md:block">
-          <ul className="flex space-x-8 text-sm font-medium text-purple-200">
+        <div
+          className="
+            px-8 py-3
+            rounded-full
+            backdrop-blur-lg
+            bg-purple-900/20
+            border border-purple-600/40
+            shadow-[0_0_25px_rgba(168,85,247,0.25)]
+            w-1/2
+          "
+        >
+          <ul className="flex space-x-24 text-sm font-medium text-purple-200">
             {["Home", "How it Works", "Features", "About"].map((item, idx) => (
               <motion.li
                 key={idx}

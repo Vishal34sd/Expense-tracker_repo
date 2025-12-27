@@ -1,7 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import Navbar from "../components/Navbar"
+import Navbar from "../components/Navbar";
+
+import {
+  FaWallet,
+  FaRobot,
+  FaMagic,
+  FaCloud,
+} from "react-icons/fa";
+import { MdInsights, MdSecurity } from "react-icons/md";
 
 export default function LandingPage() {
   const fullTitle = useMemo(() => "Expense Tracking, Reimagined", []);
@@ -10,7 +18,7 @@ export default function LandingPage() {
   useEffect(() => {
     let isMounted = true;
     let index = 0;
-    let direction = 1; // 1 = typing, -1 = deleting
+    let direction = 1;
     let timeoutId;
 
     const typeSpeedMs = 95;
@@ -53,37 +61,37 @@ export default function LandingPage() {
   const features = useMemo(
     () => [
       {
-        badge: "TRK",
+        icon: FaWallet,
         title: "Track Expenses",
         description:
           "Easily log and categorize your daily expenses in seconds.",
       },
       {
-        badge: "VIZ",
+        icon: MdInsights,
         title: "Visual Insights",
         description:
           "Understand spending patterns with clean and interactive charts.",
       },
       {
-        badge: "SEC",
+        icon: MdSecurity,
         title: "Secure & Private",
         description:
           "Your financial data stays encrypted, private, and fully yours.",
       },
       {
-        badge: "AI",
+        icon: FaRobot,
         title: "AI Assistant Support",
         description:
           "Ask questions about your spending and get smart, contextual help.",
       },
       {
-        badge: "FAST",
+        icon: FaMagic,
         title: "Fast Expense Management",
         description:
           "Add, edit, and search transactions quickly with a smooth workflow.",
       },
       {
-        badge: "RPT",
+        icon: FaCloud,
         title: "Reports & Export",
         description:
           "Generate summaries and export data when you need to share or review.",
@@ -93,12 +101,12 @@ export default function LandingPage() {
   );
 
   return (
-      <div
-        id="top"
-        className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white overflow-hidden"
-      >
+    <div
+      id="top"
+      className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white overflow-hidden"
+    >
       {/* Navbar */}
-      <Navbar/>
+      <Navbar />
 
       {/* Hero Section */}
       <div className="pt-32 px-6">
@@ -116,7 +124,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: [0, 1, 0] }}
                 transition={{ duration: 0.9, repeat: Infinity }}
-                className="inline-block align-baseline ml-1 text-purple-200"
+                className="inline-block align-baseline ml-1 text-white"
               >
                 |
               </motion.span>
@@ -126,7 +134,7 @@ export default function LandingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-lg text-purple-200/80 max-w-2xl mb-10"
+              className="text-lg text-white max-w-2xl mb-10"
             >
               Track your spending, visualize habits, and make smarter financial
               decisions with a clean, secure, and AI-powered experience.
@@ -201,10 +209,10 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.08, duration: 0.5 }}
-                className="p-6 rounded-2xl bg-purple-900/20 border border-purple-400/20 hover:border-purple-400/40 shadow-lg hover:shadow-purple-900/40 transition"
+                className="p-6 rounded-2xl bg-gray-950 border border-purple-400/20 hover:border-white shadow-lg hover:shadow-purple-900/40 transition"
               >
-                <div className="w-12 h-12 rounded-2xl bg-purple-900/30 border border-purple-400/20 flex items-center justify-center text-xs font-bold tracking-wider text-purple-200 mb-4">
-                  {feature.badge}
+                <div className="w-12 h-12 rounded-2xl bg-purple-900/30 border border-purple-400/20 flex items-center justify-center mb-4">
+                  <feature.icon className="text-purple-400 text-xl" />
                 </div>
                 <h3 className="text-xl font-semibold text-purple-300 mb-2">
                   {feature.title}
@@ -223,10 +231,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             <div>
-              <div className="text-lg font-bold text-purple-300">smartExpense</div>
+              <div className="text-lg font-bold text-purple-300">Expense Tracker</div>
               <p className="text-sm text-purple-200/70 mt-2 max-w-sm">
-                A practical expense tracker built to help you record spending, see
-                trends, and stay consistent.
+                A practical expense tracker built to help you record spending,
+                see trends, and stay consistent.
               </p>
               <div className="text-xs text-purple-200/50 mt-3">
                 Built with React and Node.js
@@ -251,8 +259,11 @@ export default function LandingPage() {
             <div className="text-sm">
               <div className="text-purple-200 font-semibold mb-3">Info</div>
               <div className="text-purple-200/70">Version 2.5.1</div>
-              <div className="text-purple-200/70 mt-2">© 2025 smartExpense</div>
-              <a className="text-purple-200/50 hover:text-purple-300 transition mt-2 inline-block" href="#top">
+              <div className="text-purple-200/70 mt-2">© 2025 Expense Tracker</div>
+              <a
+                className="text-purple-200/50 hover:text-purple-300 transition mt-2 inline-block"
+                href="#top"
+              >
                 Back to top
               </a>
             </div>

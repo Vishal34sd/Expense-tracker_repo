@@ -9,6 +9,9 @@ const questionSchema =  new mongoose.Schema({
         type : String ,
         required : true
     },
+    reply : {
+        type : String,
+    },
     answers : {
         type : String ,
         

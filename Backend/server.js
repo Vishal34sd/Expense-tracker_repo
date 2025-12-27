@@ -16,19 +16,37 @@ app.set('trust proxy', 1);
 // Connect to the database
 dbConnection();
 
-// --- CORS Configuration ---
-// List of frontend URLs that are allowed to access your backend.
+
 const allowedOrigins = [
   'https://expense-tracker-repo-3p8w.vercel.app', // Your Vercel deployment
   'http://localhost:5173'                         // Your local development environment
 ];
 
+const envAllowed = (process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map(s => s.trim())
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (allowedOrigins.includes(origin)) return true;
+  if (envAllowed.includes(origin)) return true;
+  // Allow Vercel preview deployments
+  try {
+    const { hostname, protocol } = new URL(origin);
+    if (protocol === "https:" && hostname.endsWith(".vercel.app")) return true;
+  } catch {
+    // ignore invalid origin
+  }
+  return false;
+};
+
 const corsOptions = {
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (isAllowedOrigin(origin)) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) === -1) {
+    if (!isAllowedOrigin(origin)) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
       return callback(new Error(msg), false);
     }

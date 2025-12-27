@@ -18,10 +18,10 @@ const authMiddleware = (req, res, next) => {
         req.userInfo = decodedTokenInfo;
         next();
     } catch (err) {
-        console.log(err);
-        return res.status(403).json({
+        const isExpired = err?.name === "TokenExpiredError";
+        return res.status(401).json({
             success: false,
-            message: "Access denied"
+            message: isExpired ? "Token expired. Please login again." : "Invalid token. Please login again."
         });
     }
 }

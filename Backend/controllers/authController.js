@@ -6,6 +6,8 @@ import { sendEmail } from "../utils/nodeMailerConfig.js";
 
 const userRegister = async (req, res) => {
   try {
+    console.log("[REGISTER DEBUG] /register called with body:", req.body);
+
     let { username, email, password } = req.body;
 
     
@@ -21,6 +23,11 @@ const userRegister = async (req, res) => {
     });
 
     if (userExists) {
+      console.log("[REGISTER DEBUG] User already exists", {
+        username,
+        email,
+        existingId: userExists._id,
+      });
       return res.status(400).json({
         success: false,
         message:
@@ -42,6 +49,8 @@ const userRegister = async (req, res) => {
 
      const  savedUser = await newUser.save();
 
+    console.log("[REGISTER DEBUG] New user saved", { id: savedUser?._id, email: savedUser?.email });
+
     if (!savedUser) {
       return res.status(400).json({
         success: false,
@@ -50,7 +59,11 @@ const userRegister = async (req, res) => {
     }
      // Creation of otp and saving it to DataBase
     const otp = otpGenerator();
+    console.log("[OTP DEBUG] Generated OTP for registration", { email, otp });
+
+    console.log("[OTP DEBUG] Calling sendEmail for registration");
     await sendEmail(email , otp);
+    console.log("[OTP DEBUG] sendEmail completed for registration", { email });
     savedUser.otp = otp ;
     savedUser.expiresIn = Date.now() + 5 * 60 * 1000; // otp expires in 5min
     await savedUser.save();
@@ -76,7 +89,7 @@ const userRegister = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Registration error:", err);
+    console.error("[REGISTER DEBUG] Registration error:", err);
     res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -141,7 +154,9 @@ const verifyOTP = async (req, res) => {
   try {
     const { otp } = req.body;
 
-    if (!otp) {
+    const providedOtp = otp !== undefined && otp !== null ? String(otp).trim() : "";
+
+    if (!providedOtp) {
       return res.status(400).json({
         success: false,
         message: "OTP is required"
@@ -157,11 +172,15 @@ const verifyOTP = async (req, res) => {
       });
     }
 
-    if (userEmail.otp !== otp) {
+    if (!userEmail.otp) {
+      return res.status(400).json({ success: false, message: "No OTP found for this user" });
+    }
+
+    if (String(userEmail.otp).trim() !== providedOtp) {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
 
-    if (userEmail.expiresIn < Date.now()) {
+    if (!userEmail.expiresIn || userEmail.expiresIn < Date.now()) {
       return res.status(400).json({ success: false, message: "OTP has expired" });
     }
 

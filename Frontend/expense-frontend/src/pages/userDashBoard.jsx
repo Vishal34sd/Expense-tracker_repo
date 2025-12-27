@@ -13,11 +13,26 @@ const UserDashboard = () => {
 
   const [transaction, setTransaction] = useState([]);
   const [recentTransaction, setRecentTransaction] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchData();
-    fetchRecentData();
+    let isMounted = true;
+
+    const load = async () => {
+      try {
+        await Promise.all([fetchData(), fetchRecentData()]);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    load();
+
+    return () => {
+      isMounted = false;
+    };
   }, [])
+
 
   const fetchData = async () => {
     try {
@@ -42,7 +57,6 @@ const UserDashboard = () => {
         }
       });
       setRecentTransaction(res.data.recent);
-      console.log(recentTransaction);
     }
     catch (err) {
       console.log(err)
@@ -93,49 +107,73 @@ const UserDashboard = () => {
         <Link to="/ask-chatbot"><button className="bg-purple-600 hover:bg-purple-700 text-white w-fit h-fit rounded-2xl px-4 py-3 font-bold transition">Chat with AI-Assistant</button></Link>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-          <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
-            <h2 className="text-xl font-semibold text-purple-200"> Total Earnings</h2>
-            <p className="text-3xl font-bold mt-2 text-green-400">₹ {totalEarning}</p>
+        {isLoading ? (
+          <div className="mt-6 bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md text-purple-200/80">
+            Loading your dashboard…
           </div>
+        ) : transaction.length === 0 ? (
+          <div className="mt-6 bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-8 shadow-md">
+            <h2 className="text-2xl font-bold text-purple-200">Let’s get started</h2>
+            <p className="text-purple-200/70 mt-2">Add your first expense to see your dashboard.</p>
 
-          <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
-            <h2 className="text-xl font-semibold text-purple-200"> Amount Spent</h2>
-            <p className="text-3xl font-bold mt-2 text-red-400">₹ {totalSpent}</p>
-          </div>
-
-          <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
-            <h2 className="text-xl font-semibold text-purple-200">Available Balance</h2>
-            <p className="text-3xl font-bold mt-2 text-yellow-400">₹ {availableBalance}</p>
-          </div>
-
-          <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
-            <h2 className="text-xl font-semibold text-purple-200">Number of Transactions</h2>
-            <p className="text-3xl font-bold mt-2 text-white">{transaction.length}</p>
-          </div>
-        </div>
-
-        <div className="mt-10 bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md">
-          <h2 className="text-xl font-semibold text-purple-200 mb-4">Recent Expenses</h2>
-          <ul className="space-y-3 text-sm text-purple-200/80">
-            {recentTransaction.map((item, index) => (
-              <li
-                key={index}
-                className="flex justify-between items-center border-b border-purple-500/10 pb-2"
+            <div className="mt-6 flex gap-3">
+              <Link
+                to="/add"
+                className="bg-purple-600 hover:bg-purple-700 text-white rounded-2xl px-5 py-3 font-bold transition"
               >
-                <span>{item.category} - ₹{item.amount}</span>
-                <span>{item.note}</span>
-                <span className="text-purple-200/50 ml-2">
-                  {new Date(item.date).toLocaleDateString()}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="w-fit h-auto m-auto mt-5">
-          <h3 className="text-white text-3xl font-semibold mb-8">Expense Distribution</h3>
-          <Pie data={pieData} />
-        </div>
+                 Add New Expense
+              </Link>
+              
+            </div>
+          </div>
+        ) : (
+
+          <>
+            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
+              <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
+                <h2 className="text-xl font-semibold text-purple-200"> Total Earnings</h2>
+                <p className="text-3xl font-bold mt-2 text-green-400">₹ {totalEarning}</p>
+              </div>
+
+              <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
+                <h2 className="text-xl font-semibold text-purple-200"> Amount Spent</h2>
+                <p className="text-3xl font-bold mt-2 text-red-400">₹ {totalSpent}</p>
+              </div>
+
+              <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
+                <h2 className="text-xl font-semibold text-purple-200">Available Balance</h2>
+                <p className="text-3xl font-bold mt-2 text-yellow-400">₹ {availableBalance}</p>
+              </div>
+
+              <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
+                <h2 className="text-xl font-semibold text-purple-200">Number of Transactions</h2>
+                <p className="text-3xl font-bold mt-2 text-white">{transaction.length}</p>
+              </div>
+            </div>
+
+            <div className="mt-10 bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md">
+              <h2 className="text-xl font-semibold text-purple-200 mb-4">Recent Expenses</h2>
+              <ul className="space-y-3 text-sm text-purple-200/80">
+                {recentTransaction.map((item, index) => (
+                  <li
+                    key={index}
+                    className="flex justify-between items-center border-b border-purple-500/10 pb-2"
+                  >
+                    <span>{item.category} - ₹{item.amount}</span>
+                    <span>{item.note}</span>
+                    <span className="text-purple-200/50 ml-2">
+                      {new Date(item.date).toLocaleDateString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="w-fit h-auto m-auto mt-5">
+              <h3 className="text-white text-3xl font-semibold mb-8">Expense Distribution</h3>
+              <Pie data={pieData} />
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

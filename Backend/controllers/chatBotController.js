@@ -174,14 +174,16 @@ export const askChatBot = async (req, res) => {
       await collection.add({ ids, embeddings: vectors, documents: docsText, metadatas });
     }
 
-    // Previous Q&A Memory
-    const prevQA = await Question.find({ userId }).sort({ createdAt: 1 }).select("question reply -_id");
+    // Previous Q&A Memory (support both legacy `answers` and new `reply`)
+    const prevQA = await Question.find({ userId })
+      .sort({ date: 1 })
+      .select("question reply answers date -_id");
     let memory = null;
 
-    if (prevQA.some(q => q.reply)) {
+    if (prevQA.some(q => (q.reply || q.answers))) {
       const bufferMemory = new BufferMemory({ memoryKey: "chat_history", inputKey: "input", outputKey: "response", returnMessages: false });
       for (const qa of prevQA) {
-        const replyText = qa.reply?.trim() || "No reply";
+        const replyText = (qa.reply || qa.answers)?.trim() || "No reply";
         await bufferMemory.saveContext({ input: qa.question }, { response: replyText });
       }
 
@@ -217,7 +219,8 @@ User Question: ${userQuestion}`;
 
     userInfo.searchCount += 1;
     await userInfo.save();
-    await Question.create({ userId, question: userQuestion, reply });
+    // Persist both fields so older code paths still work
+    await Question.create({ userId, question: userQuestion, reply, answers: reply });
 
     res.json({ reply, searchCount: userInfo.searchCount });
 
