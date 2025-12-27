@@ -85,14 +85,14 @@ const AllTransactions = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6">
-      <h1 className="text-3xl font-bold text-teal-400 mb-6 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white p-6">
+      <h1 className="text-3xl font-bold text-purple-300 mb-6 text-center">
         All Transactions
       </h1>
 
-      <div className="overflow-x-auto bg-gray-900 border border-gray-700 rounded-2xl shadow-md">
-        <table className="min-w-full text-sm text-gray-300">
-          <thead className="bg-gray-800 text-gray-400 uppercase text-left">
+      <div className="overflow-x-auto bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md">
+        <table className="min-w-full text-sm text-purple-200/80">
+          <thead className="bg-purple-900/20 text-purple-200/60 uppercase text-left">
             <tr>
               <th className="p-4">#</th>
               <th className="p-4">Type</th>
@@ -112,7 +112,7 @@ const AllTransactions = () => {
               return (
                 <tr
                   key={txn._id}
-                  className="border-b border-gray-700 hover:bg-gray-800 transition"
+                  className="border-b border-purple-500/10 hover:bg-purple-900/10 transition"
                 >
                   <td className="p-4">{index + 1}</td>
                   <td className={`p-4 font-medium ${typeColor}`}>{txn.type}</td>
@@ -122,7 +122,7 @@ const AllTransactions = () => {
                   <td className="p-4">{txn.date ? txn.date.slice(0,10) : "-"}</td>
                   <td className="p-4">
                     <button
-                      className="bg-teal-500 hover:bg-teal-600 text-white px-3 py-1 rounded text-xs m-3"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs m-3"
                       onClick={() => handleEditButton(txn)}
                     >
                       Edit
@@ -143,8 +143,8 @@ const AllTransactions = () => {
 
       
       {editId ? (
-        <div className="mt-8 bg-gray-900 border border-gray-700 rounded-2xl shadow-md p-6 max-w-xl mx-auto">
-          <h2 className="text-2xl font-semibold text-teal-400 mb-4 text-center">
+        <div className="mt-8 bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md p-6 max-w-xl mx-auto">
+          <h2 className="text-2xl font-semibold text-purple-300 mb-4 text-center">
             Edit Transaction
           </h2>
           <form onSubmit={handleUpdateTransaction} className="grid gap-4">
@@ -153,7 +153,7 @@ const AllTransactions = () => {
               onChange={(e) =>
                 setEditTransaction({ ...editTransaction, type: e.target.value })
               }
-              className="p-2 rounded bg-gray-800 text-white border border-gray-700"
+              className="p-2 rounded bg-purple-900/20 text-white border border-purple-500/20"
             >
               <option value="expense">Expense</option>
               <option value="income">Income</option>
@@ -165,7 +165,7 @@ const AllTransactions = () => {
               onChange={(e) =>
                 setEditTransaction({ ...editTransaction, amount: e.target.value })
               }
-              className="p-2 rounded bg-gray-800 text-white border border-gray-700"
+              className="p-2 rounded bg-purple-900/20 text-white border border-purple-500/20"
               placeholder="Amount"
               required
             />
@@ -176,7 +176,7 @@ const AllTransactions = () => {
               onChange={(e) =>
                 setEditTransaction({ ...editTransaction, category: e.target.value })
               }
-              className="p-2 rounded bg-gray-800 text-white border border-gray-700"
+              className="p-2 rounded bg-purple-900/20 text-white border border-purple-500/20"
               placeholder="Category"
               required
             />
@@ -187,14 +187,14 @@ const AllTransactions = () => {
               onChange={(e) =>
                 setEditTransaction({ ...editTransaction, note: e.target.value })
               }
-              className="p-2 rounded bg-gray-800 text-white border border-gray-700"
+              className="p-2 rounded bg-purple-900/20 text-white border border-purple-500/20"
               placeholder="Note"
             />
 
             <div className="flex gap-4 justify-center mt-4">
               <button
                 type="submit"
-                className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded"
               >
                 Update
               </button>

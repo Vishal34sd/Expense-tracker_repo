@@ -52,7 +52,7 @@ const userRegister = async (req, res) => {
     const otp = otpGenerator();
     await sendEmail(email , otp);
     savedUser.otp = otp ;
-    savedUser.expiresIn = Date.now() + 1*60*1000 ; // otp expires in 5min
+    savedUser.expiresIn = Date.now() + 5 * 60 * 1000; // otp expires in 5min
     await savedUser.save();
 
     const accessToken = await jwt.sign({

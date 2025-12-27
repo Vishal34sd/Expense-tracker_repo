@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
+import './App.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import LandingPage from './pages/LandingPage.jsx'
 import SignUp from './pages/SignUp.jsx'

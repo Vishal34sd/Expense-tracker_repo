@@ -98,20 +98,20 @@ const OTP_Page = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center px-4">
-      <div className="bg-gray-900 border border-gray-700 shadow-xl rounded-2xl p-8 sm:p-10 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-teal-400 mb-2 text-center">Email Verification</h2>
-        <p className="text-gray-400 text-center mb-2">Enter the OTP sent to your registered Email-ID</p>
-        <p className="text-sm text-gray-300 text-center mb-4">
-          Time left: <span className="font-mono text-teal-300">{formatTime(secondsLeft)}</span>
+    <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black flex items-center justify-center px-4 text-white">
+      <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 shadow-xl rounded-2xl p-8 sm:p-10 w-full max-w-md">
+        <h2 className="text-3xl font-bold text-purple-300 mb-2 text-center">Email Verification</h2>
+        <p className="text-purple-200/70 text-center mb-2">Enter the OTP sent to your registered Email-ID</p>
+        <p className="text-sm text-purple-200/80 text-center mb-4">
+          Time left: <span className="font-mono text-purple-200">{formatTime(secondsLeft)}</span>
         </p>
 
         <form className="space-y-5" onSubmit={handleOtpSubmit}>
           <div>
-            <label className="block text-sm text-gray-300 mb-1">OTP</label>
+            <label className="block text-sm text-purple-200/80 mb-1">OTP</label>
             <input
               type="text"
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               placeholder="Enter OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
@@ -122,7 +122,7 @@ const OTP_Page = () => {
           <button
             type="submit"
             disabled={expired}
-            className={`w-full ${expired ? 'bg-gray-600 cursor-not-allowed' : 'bg-teal-500 hover:bg-teal-600'} text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg`}
+            className={`w-full ${expired ? 'bg-purple-900/30 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'} text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg`}
           >
             Verify OTP
           </button>
@@ -134,13 +134,13 @@ const OTP_Page = () => {
               <p className="text-sm text-red-400 mb-2">OTP has expired.</p>
               <button
                 onClick={handleResend}
-                className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded-md font-medium"
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium"
               >
                 Resend OTP
               </button>
             </div>
           ) : (
-            <p className="text-sm text-gray-500">If you didn't receive OTP, please wait or try resending after it expires.</p>
+            <p className="text-sm text-purple-200/60">If you didn't receive OTP, please wait or try resending after it expires.</p>
           )}
         </div>
       </div>

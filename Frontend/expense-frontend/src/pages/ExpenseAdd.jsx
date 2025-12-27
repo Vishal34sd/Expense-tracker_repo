@@ -43,19 +43,19 @@ const AddExpense = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white flex items-center justify-center px-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-8 w-full max-w-md shadow-xl">
-        <h2 className="text-3xl font-bold text-teal-400 mb-6 text-center">Add Expense / Income</h2>
+    <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white flex items-center justify-center px-4">
+      <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-8 w-full max-w-md shadow-xl">
+        <h2 className="text-3xl font-bold text-purple-300 mb-6 text-center">Add Expense / Income</h2>
 
         <form className="space-y-5" onSubmit={formSubmitHandler}>
           
           <div>
-            <label className="block text-sm text-gray-300 mb-1">Type</label>
+            <label className="block text-sm text-purple-200/80 mb-1">Type</label>
             <select
               name = "type"
               value={form.type}
               onChange={inputHandler}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
             >
               <option value="expense">Expense</option>
               <option value="income">Income</option>
@@ -64,13 +64,13 @@ const AddExpense = () => {
 
           
           <div>
-            <label className="block text-sm text-gray-300 mb-1">Amount</label>
+            <label className="block text-sm text-purple-200/80 mb-1">Amount</label>
             <input
             name = "amount"
               type="number"
               value={form.amount}
               onChange={inputHandler}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               placeholder="Enter amount"
               required
             />
@@ -78,13 +78,13 @@ const AddExpense = () => {
 
           
           <div>
-            <label className="block text-sm text-gray-300 mb-1">Category</label>
+            <label className="block text-sm text-purple-200/80 mb-1">Category</label>
             <input
               type="text"
               name = "category"
               value={form.category}
               onChange={inputHandler}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               placeholder="e.g. Food, Travel"
               required
             />
@@ -92,12 +92,12 @@ const AddExpense = () => {
 
           
           <div>
-            <label className="block text-sm text-gray-300 mb-1">Note</label>
+            <label className="block text-sm text-purple-200/80 mb-1">Note</label>
             <textarea
               name = "note"
               value={form.note}
               onChange={inputHandler}
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
               placeholder="Add an optional note..."
               rows="3"
             ></textarea>
@@ -105,7 +105,7 @@ const AddExpense = () => {
 
           <button
             type="submit"
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg hover:shadow-teal-600"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg"
           >
             Add Entry
           </button>

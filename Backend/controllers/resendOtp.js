@@ -1,4 +1,3 @@
-// controllers/authController.js
 import User from "../model/userSchema.js";
 import { otpGenerator } from "../utils/otp.js";
 import { sendEmail } from "../utils/nodeMailerConfig.js";
@@ -23,7 +22,7 @@ import { sendEmail } from "../utils/nodeMailerConfig.js";
 
     // Save OTP and expiry time to DB
     user.otp = otp;
-    user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 min
+    user.expiresIn = Date.now() + 5 * 60 * 1000; // 5 min
     await user.save();
 
     

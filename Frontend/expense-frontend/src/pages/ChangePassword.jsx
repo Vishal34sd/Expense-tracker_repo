@@ -29,12 +29,12 @@ const ChangePassword = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center px-4">
-      <div className="bg-gray-900 border border-gray-700 shadow-xl rounded-2xl p-8 sm:p-10 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-teal-400 mb-2 text-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black flex items-center justify-center px-4 text-white">
+      <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 shadow-xl rounded-2xl p-8 sm:p-10 w-full max-w-md">
+        <h2 className="text-3xl font-bold text-purple-300 mb-2 text-center">
           Change Password
         </h2>
-        <p className="text-gray-400 text-center mb-6">
+        <p className="text-purple-200/70 text-center mb-6">
           Update your password securely
         </p>
 
@@ -42,7 +42,7 @@ const ChangePassword = () => {
           <div>
             <label
               htmlFor="oldPassword"
-              className="block text-sm text-gray-300 mb-1"
+              className="block text-sm text-purple-200/80 mb-1"
             >
               Old Password
             </label>
@@ -52,12 +52,12 @@ const ChangePassword = () => {
                 onChange = {(e)=>setOldPassword(e.target.value)}
                 id="oldPassword"
                 type={showOld ? "text" : "password"}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
                 placeholder="Enter old password"
               />
               <span
                 onClick={() => setShowOld(!showOld)}
-                className="absolute right-3 top-2 cursor-pointer text-sm text-teal-400 select-none"
+                className="absolute right-3 top-2 cursor-pointer text-sm text-purple-300 select-none"
               >
                 {showOld ? "Hide" : "Show"}
               </span>
@@ -67,7 +67,7 @@ const ChangePassword = () => {
           <div>
             <label
               htmlFor="newPassword"
-              className="block text-sm text-gray-300 mb-1"
+              className="block text-sm text-purple-200/80 mb-1"
             >
               New Password
             </label>
@@ -77,12 +77,12 @@ const ChangePassword = () => {
                 onChange = {(e)=>setNewPassword(e.target.value)}
                 id="newPassword"
                 type={showNew ? "text" : "password"}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
                 placeholder="Enter new password"
               />
               <span
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-2 cursor-pointer text-sm text-teal-400 select-none"
+                className="absolute right-3 top-2 cursor-pointer text-sm text-purple-300 select-none"
               >
                 {showNew ? "Hide" : "Show"}
               </span>
@@ -91,7 +91,7 @@ const ChangePassword = () => {
 
           <button
             type="submit"
-            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg hover:shadow-teal-600"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-md transition-all duration-300 shadow-lg"
           >
             Update Password
           </button>
