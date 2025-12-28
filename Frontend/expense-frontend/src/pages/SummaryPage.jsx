@@ -103,17 +103,17 @@ const ViewSummary = () => {
   return (
     <div className="min-h-screen py-10 px-6 md:px-20 bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white">
       <div ref={summaryRef} className="p-6 rounded-2xl shadow-xl max-w-6xl mx-auto bg-purple-900/20 backdrop-blur border border-purple-500/20">
-        <h2 className="text-3xl font-bold mb-6 text-center text-purple-300">Expense Summary</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center text-white">Expense Summary</h2>
 
         {isLoading ? (
-          <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20 text-purple-200/80">
+          <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20 text-white/80">
             Loading summary…
           </div>
         ) : transactions.length === 0 ? (
           <div className="p-8 rounded-xl bg-purple-900/20 border border-purple-500/20 text-center">
-            <h3 className="text-2xl font-bold text-purple-200">No summary present</h3>
-            <p className="text-purple-200/70 mt-2">No expense data available.</p>
-            <p className="text-purple-200/70 mt-2">Add your first expense to generate a summary.</p>
+            <h3 className="text-2xl font-bold text-white">No summary present</h3>
+            <p className="text-white/70 mt-2">No expense data available.</p>
+            <p className="text-white/70 mt-2">Add your first expense to generate a summary.</p>
 
             <div className="mt-6">
               <Link
@@ -137,22 +137,22 @@ const ViewSummary = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
               <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-lg font-semibold mb-2 text-purple-200">Monthly Budget</h3>
+                <h3 className="text-lg font-semibold mb-2 text-white">Monthly Budget</h3>
                 <p>Budget: ₹{budget}</p>
                 <p>Spent: ₹{totalSpent}</p>
                 <p className="mt-1 font-bold text-green-400">{percentSpent}% used</p>
               </div>
 
               <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-lg font-semibold mb-2 text-purple-200">Most Spent Category</h3>
+                <h3 className="text-lg font-semibold mb-2 text-white">Most Spent Category</h3>
                 <p>Category: <span className="capitalize">{mostSpentCategory[0]}</span></p>
                 <p>Amount: ₹{mostSpentCategory[1]}</p>
               </div>
 
               <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-lg font-semibold mb-2 text-purple-200">Average Per Transaction</h3>
+                <h3 className="text-lg font-semibold mb-2 text-white">Average Per Transaction</h3>
                 <p>₹{averageExpense}</p>
-                <p className="text-sm text-purple-200/60">
+                <p className="text-sm text-white/60">
                   Across {transactions.filter(t => t.type === "expense").length} expenses
                 </p>
               </div>
@@ -160,12 +160,12 @@ const ViewSummary = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-xl font-semibold mb-4 text-purple-200">Category Distribution</h3>
-                {Object.keys(categoryData).length > 0 ? <Pie data={pieData} /> : <p className="text-purple-200/60">No expense data available</p>}
+                <h3 className="text-xl font-semibold mb-4 text-white">Category Distribution</h3>
+                {Object.keys(categoryData).length > 0 ? <Pie data={pieData} /> : <p className="text-white/60">No expense data available</p>}
               </div>
 
               <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-xl font-semibold mb-4 text-purple-200">Breakdown by Category</h3>
+                <h3 className="text-xl font-semibold mb-4 text-white">Breakdown by Category</h3>
                 <div className="space-y-3">
                   {Object.entries(categoryData).map(([category, amount], idx) => (
                     <div key={idx} className="flex justify-between px-4 py-2 rounded-lg bg-purple-900/20 border border-purple-500/10">
@@ -178,7 +178,7 @@ const ViewSummary = () => {
             </div>
 
             <div className="mt-10 p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-              <h3 className="text-2xl font-bold mb-4 text-purple-300">Smart Spending Insights</h3>
+              <h3 className="text-2xl font-bold mb-4 text-white">Smart Spending Insights</h3>
               <div className="space-y-4">
                 {Object.entries(categoryData)
                   .sort((a, b) => b[1] - a[1])
@@ -192,7 +192,7 @@ const ViewSummary = () => {
                       <div key={idx} className="flex justify-between items-center p-4 rounded-lg bg-purple-900/20 border border-purple-500/10">
                         <div>
                           <p className="capitalize text-lg font-semibold">{category}</p>
-                          <p className="text-purple-200/60">Spent ₹{amount}</p>
+                          <p className="text-white/60">Spent ₹{amount}</p>
                         </div>
                         <span className="text-sm font-medium px-3 py-1 rounded-full bg-purple-900/30 border border-purple-500/10">{label}</span>
                       </div>
@@ -201,8 +201,8 @@ const ViewSummary = () => {
               </div>
 
               <div className="mt-6 p-4 rounded-lg bg-purple-900/20 border border-purple-500/10">
-                <h4 className="text-lg font-semibold mb-2 text-purple-200">Spending Tip</h4>
-                <p className="text-purple-200/60">
+                <h4 className="text-lg font-semibold mb-2 text-white">Spending Tip</h4>
+                <p className="text-white/60">
                   {totalSpent > budget
                     ? "You've crossed your monthly budget. Consider limiting non-essential expenses like shopping or food deliveries."
                     : totalSpent > 0.75 * budget

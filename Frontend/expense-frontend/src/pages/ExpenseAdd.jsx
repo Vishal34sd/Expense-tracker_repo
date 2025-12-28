@@ -45,12 +45,12 @@ const AddExpense = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white flex items-center justify-center px-4">
       <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-8 w-full max-w-md shadow-xl">
-        <h2 className="text-3xl font-bold text-purple-300 mb-6 text-center">Add Expense / Income</h2>
+        <h2 className="text-3xl font-bold text-white mb-6 text-center">Add Expense / Income</h2>
 
         <form className="space-y-5" onSubmit={formSubmitHandler}>
           
           <div>
-            <label className="block text-sm text-purple-200/80 mb-1">Type</label>
+            <label className="block text-sm text-white/80 mb-1">Type</label>
             <select
               name = "type"
               value={form.type}
@@ -64,7 +64,7 @@ const AddExpense = () => {
 
           
           <div>
-            <label className="block text-sm text-purple-200/80 mb-1">Amount</label>
+            <label className="block text-sm text-white/80 mb-1">Amount</label>
             <input
             name = "amount"
               type="number"
@@ -78,7 +78,7 @@ const AddExpense = () => {
 
           
           <div>
-            <label className="block text-sm text-purple-200/80 mb-1">Category</label>
+            <label className="block text-sm text-white/80 mb-1">Category</label>
             <input
               type="text"
               name = "category"
@@ -92,7 +92,7 @@ const AddExpense = () => {
 
           
           <div>
-            <label className="block text-sm text-purple-200/80 mb-1">Note</label>
+            <label className="block text-sm text-white/80 mb-1">Note</label>
             <textarea
               name = "note"
               value={form.note}

@@ -116,7 +116,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9 }}
-              className="text-5xl md:text-6xl font-bold text-purple-300 mb-6 drop-shadow-lg"
+              className="text-5xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg"
             >
               <span className="whitespace-pre-wrap">{typedTitle}</span>
               <motion.span
@@ -155,7 +155,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 to="/login"
-                className="bg-transparent border border-purple-400 text-purple-300 hover:bg-purple-900/40 font-semibold px-8 py-3 rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105 w-full sm:w-auto text-center"
+                className="bg-transparent border border-purple-400 text-white hover:bg-purple-900/40 font-semibold px-8 py-3 rounded-2xl shadow-lg transition-transform duration-300 hover:scale-105 w-full sm:w-auto text-center"
               >
                 Sign In
               </Link>
@@ -193,10 +193,10 @@ export default function LandingPage() {
           className="rounded-3xl bg-purple-900/10 backdrop-blur border border-purple-500/20 p-8"
         >
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-purple-300">
+            <h2 className="text-3xl md:text-4xl font-bold text-white">
               Our Features
             </h2>
-            <p className="text-purple-200/70 mt-3">
+            <p className="text-white/70 mt-3">
               Everything you need to track, understand, and improve your spending.
             </p>
           </div>
@@ -212,12 +212,12 @@ export default function LandingPage() {
                 className="p-6 rounded-2xl bg-gray-950 border border-purple-400/20 hover:border-white shadow-lg hover:shadow-purple-900/40 transition"
               >
                 <div className="w-12 h-12 rounded-2xl bg-purple-900/30 border border-purple-400/20 flex items-center justify-center mb-4">
-                  <feature.icon className="text-purple-400 text-xl" />
+                  <feature.icon className="text-white text-xl" />
                 </div>
-                <h3 className="text-xl font-semibold text-purple-300 mb-2">
+                <h3 className="text-xl font-semibold text-white mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-purple-200/70 text-sm">
+                <p className="text-white/70 text-sm">
                   {feature.description}
                 </p>
               </motion.div>
@@ -231,37 +231,37 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 py-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
             <div>
-              <div className="text-lg font-bold text-purple-300">Expense Tracker</div>
-              <p className="text-sm text-purple-200/70 mt-2 max-w-sm">
+              <div className="text-lg font-bold text-white">Expense Tracker</div>
+              <p className="text-sm text-white/70 mt-2 max-w-sm">
                 A practical expense tracker built to help you record spending,
                 see trends, and stay consistent.
               </p>
-              <div className="text-xs text-purple-200/50 mt-3">
+              <div className="text-xs text-white/50 mt-3">
                 Built with React and Node.js
               </div>
             </div>
 
             <div className="text-sm">
-              <div className="text-purple-200 font-semibold mb-3">Product</div>
-              <div className="flex flex-col gap-2 text-purple-200/70">
-                <Link className="hover:text-purple-300 transition" to="/register">
+              <div className="text-white font-semibold mb-3">Product</div>
+              <div className="flex flex-col gap-2 text-white/70">
+                <Link className="hover:text-white transition" to="/register">
                   Get Started
                 </Link>
-                <Link className="hover:text-purple-300 transition" to="/login">
+                <Link className="hover:text-white transition" to="/login">
                   Sign In
                 </Link>
-                <a className="hover:text-purple-300 transition" href="#features">
+                <a className="hover:text-white transition" href="#features">
                   Features
                 </a>
               </div>
             </div>
 
             <div className="text-sm">
-              <div className="text-purple-200 font-semibold mb-3">Info</div>
-              <div className="text-purple-200/70">Version 2.5.1</div>
-              <div className="text-purple-200/70 mt-2">© 2025 Expense Tracker</div>
+              <div className="text-white font-semibold mb-3">Info</div>
+              <div className="text-white/70">Version 2.5.1</div>
+              <div className="text-white/70 mt-2">© 2025 Expense Tracker</div>
               <a
-                className="text-purple-200/50 hover:text-purple-300 transition mt-2 inline-block"
+                className="text-white/50 hover:text-white transition mt-2 inline-block"
                 href="#top"
               >
                 Back to top
@@ -269,7 +269,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="mt-10 pt-6 border-t border-purple-500/10 text-xs text-purple-200/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <div className="mt-10 pt-6 border-t border-purple-500/10 text-xs text-white/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div>Designed for everyday personal finance tracking.</div>
             <div>All rights reserved.</div>
           </div>

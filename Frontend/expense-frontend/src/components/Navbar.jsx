@@ -32,14 +32,14 @@ const Navbar = () => {
             w-1/2
           "
         >
-          <ul className="flex space-x-24 text-sm font-medium text-purple-200">
+          <ul className="flex space-x-24 text-sm font-medium text-white/80">
             {["Home", "How it Works", "Features", "About"].map((item, idx) => (
               <motion.li
                 key={idx}
                 whileHover={{ y: -2 }}
                 className="relative cursor-pointer group"
               >
-                <span className="group-hover:text-purple-400 transition">
+                <span className="group-hover:text-white transition">
                   {item}
                 </span>
                 <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-purple-400 group-hover:w-full transition-all duration-300" />

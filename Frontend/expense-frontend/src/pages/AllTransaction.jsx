@@ -90,18 +90,18 @@ const AllTransactions = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white p-6">
-      <h1 className="text-3xl font-bold text-purple-300 mb-6 text-center">
+      <h1 className="text-3xl font-bold text-white mb-6 text-center">
         All Transactions
       </h1>
 
       {isLoading ? (
-        <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md p-6 text-purple-200/80">
+        <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md p-6 text-white/80">
           Loading transactions…
         </div>
       ) : transaction.length === 0 ? (
         <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md p-8 text-center">
-          <h2 className="text-2xl font-bold text-purple-200">No data present</h2>
-          <p className="text-purple-200/70 mt-2">No transactions found.</p>
+          <h2 className="text-2xl font-bold text-white">No data present</h2>
+          <p className="text-white/70 mt-2">No transactions found.</p>
 
           <div className="mt-6">
             <Link
@@ -114,8 +114,8 @@ const AllTransactions = () => {
         </div>
       ) : (
         <div className="overflow-x-auto bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md">
-          <table className="min-w-full text-sm text-purple-200/80">
-            <thead className="bg-purple-900/20 text-purple-200/60 uppercase text-left">
+          <table className="min-w-full text-sm text-white/80">
+            <thead className="bg-purple-900/20 text-white/60 uppercase text-left">
               <tr>
                 <th className="p-4">#</th>
                 <th className="p-4">Type</th>
@@ -168,7 +168,7 @@ const AllTransactions = () => {
       
       {editId ? (
         <div className="mt-8 bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl shadow-md p-6 max-w-xl mx-auto">
-          <h2 className="text-2xl font-semibold text-purple-300 mb-4 text-center">
+          <h2 className="text-2xl font-semibold text-white mb-4 text-center">
             Edit Transaction
           </h2>
           <form onSubmit={handleUpdateTransaction} className="grid gap-4">

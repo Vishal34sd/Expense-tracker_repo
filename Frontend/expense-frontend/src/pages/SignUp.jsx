@@ -30,16 +30,16 @@ const SignUp = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black flex items-center justify-center px-4 text-white">
       <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 shadow-xl rounded-2xl p-8 sm:p-10 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-purple-300 mb-2 text-center">
+        <h2 className="text-3xl font-bold text-white mb-2 text-center">
           Create Account
         </h2>
-        <p className="text-purple-200/70 text-center mb-6">
+        <p className="text-white/70 text-center mb-6">
           Start tracking your expenses today!
         </p>
 
         <form className="space-y-5" onSubmit={formHandler}>
           <div>
-            <label className="block text-sm text-purple-200/80 mb-1">Username</label>
+            <label className="block text-sm text-white/80 mb-1">Username</label>
             <input
               type="text"
               className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
@@ -49,7 +49,7 @@ const SignUp = () => {
             />
           </div>
           <div>
-            <label className="block text-sm text-purple-200/80 mb-1">Email</label>
+            <label className="block text-sm text-white/80 mb-1">Email</label>
             <input
               type="email"
               className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
@@ -59,7 +59,7 @@ const SignUp = () => {
             />
           </div>
           <div className="relative">
-            <label className="block text-sm text-purple-200/80 mb-1">Password</label>
+            <label className="block text-sm text-white/80 mb-1">Password</label>
             <input
               type={showPassword ? "text" : "password"}
               className="w-full px-4 py-2 bg-purple-900/20 border border-purple-500/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/40"
@@ -69,7 +69,7 @@ const SignUp = () => {
             />
             <span
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-8 cursor-pointer text-sm text-purple-300 select-none"
+              className="absolute right-3 top-8 cursor-pointer text-sm text-white select-none"
             >
               {showPassword ? "Hide" : "Show"}
             </span>
@@ -92,9 +92,9 @@ const SignUp = () => {
 
         </form>
 
-        <p className="mt-6 text-sm text-purple-200/70 text-center">
+        <p className="mt-6 text-sm text-white/70 text-center">
           Already have an account?{" "}
-          <Link to="/login" className="text-purple-300 hover:underline">
+          <Link to="/login" className="text-white hover:underline">
             Sign In
           </Link>
         </p>

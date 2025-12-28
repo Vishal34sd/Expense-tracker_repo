@@ -31,10 +31,10 @@ const ChangePassword = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black flex items-center justify-center px-4 text-white">
       <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 shadow-xl rounded-2xl p-8 sm:p-10 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-purple-300 mb-2 text-center">
+        <h2 className="text-3xl font-bold text-white mb-2 text-center">
           Change Password
         </h2>
-        <p className="text-purple-200/70 text-center mb-6">
+        <p className="text-white/70 text-center mb-6">
           Update your password securely
         </p>
 
@@ -42,7 +42,7 @@ const ChangePassword = () => {
           <div>
             <label
               htmlFor="oldPassword"
-              className="block text-sm text-purple-200/80 mb-1"
+              className="block text-sm text-white/80 mb-1"
             >
               Old Password
             </label>
@@ -57,7 +57,7 @@ const ChangePassword = () => {
               />
               <span
                 onClick={() => setShowOld(!showOld)}
-                className="absolute right-3 top-2 cursor-pointer text-sm text-purple-300 select-none"
+                className="absolute right-3 top-2 cursor-pointer text-sm text-white select-none"
               >
                 {showOld ? "Hide" : "Show"}
               </span>
@@ -67,7 +67,7 @@ const ChangePassword = () => {
           <div>
             <label
               htmlFor="newPassword"
-              className="block text-sm text-purple-200/80 mb-1"
+              className="block text-sm text-white/80 mb-1"
             >
               New Password
             </label>
@@ -82,7 +82,7 @@ const ChangePassword = () => {
               />
               <span
                 onClick={() => setShowNew(!showNew)}
-                className="absolute right-3 top-2 cursor-pointer text-sm text-purple-300 select-none"
+                className="absolute right-3 top-2 cursor-pointer text-sm text-white select-none"
               >
                 {showNew ? "Hide" : "Show"}
               </span>

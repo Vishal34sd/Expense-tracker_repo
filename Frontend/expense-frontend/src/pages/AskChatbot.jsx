@@ -85,7 +85,7 @@ const AskChatbot = () => {
 
       {/* Left Sidebar */}
       <div className="sm:w-1/4 w-full bg-purple-900/20 backdrop-blur border border-purple-500/20 shadow-lg rounded-2xl p-6 mb-6 sm:mb-0 sm:mr-6">
-        <h3 className="text-2xl font-semibold text-purple-300 mb-4 text-center">
+        <h3 className="text-2xl font-semibold text-white mb-4 text-center">
           Chat-History
         </h3>
         <div className="flex flex-col gap-3">
@@ -95,10 +95,10 @@ const AskChatbot = () => {
             .map((m, index) => (
             <button
               key={index}
-              className="text-left text-purple-200/80 bg-purple-900/20 border border-purple-500/20 hover:border-purple-400/40 hover:text-purple-200 rounded-lg px-4 py-3 transition duration-300"
+              className="text-left text-white/80 bg-purple-900/20 border border-purple-500/20 hover:border-purple-400/40 hover:text-white rounded-lg px-4 py-3 transition duration-300"
               onClick={() => setUserQuestion(m.content)}
             >
-              <span className="font-semibold text-purple-300 mr-2">Q{index + 1}:</span>
+              <span className="font-semibold text-white mr-2">Q{index + 1}:</span>
               {m.content}
             </button>
           ))}
@@ -107,10 +107,10 @@ const AskChatbot = () => {
 
       {/* Chat Area */}
       <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 shadow-xl rounded-4xl p-10 sm:p-12 flex-1 flex flex-col">
-        <h2 className="text-4xl font-bold text-purple-300 mb-4 text-center">
+        <h2 className="text-4xl font-bold text-white mb-4 text-center">
           AI Expense Assistant
         </h2>
-        <p className="text-purple-200/70 text-center mb-8 text-lg">
+        <p className="text-white/70 text-center mb-8 text-lg">
           Ask anything about your expenses
         </p>
 
@@ -128,7 +128,7 @@ const AskChatbot = () => {
             className="bg-purple-900/30 border border-purple-500/20 w-12 rounded-full h-12 flex items-center justify-center"
             onClick={() => SpeechRecognition.startListening({ continuous: false })}
           >
-            <FaMicrophone className="text-purple-400 text-lg center" />
+            <FaMicrophone className="text-white text-lg center" />
           </button>
           <button
             onClick={() => handleSearch(userQuestion)}
@@ -160,7 +160,7 @@ const AskChatbot = () => {
                 className={
                   m.role === "user"
                     ? "max-w-[85%] sm:max-w-[70%] bg-purple-600 text-white px-4 py-3 rounded-2xl border border-purple-500/20"
-                    : "max-w-[85%] sm:max-w-[70%] bg-purple-900/20 text-purple-100 px-4 py-3 rounded-2xl border border-purple-500/20"
+                    : "max-w-[85%] sm:max-w-[70%] bg-purple-900/20 text-white px-4 py-3 rounded-2xl border border-purple-500/20"
                 }
               >
                 {m.role === "assistant" ? (
@@ -174,7 +174,7 @@ const AskChatbot = () => {
 
           {showLoader && (
             <div className="w-full flex justify-start">
-              <div className="max-w-[85%] sm:max-w-[70%] bg-purple-900/20 text-purple-100 px-4 py-3 rounded-2xl border border-purple-500/20">
+              <div className="max-w-[85%] sm:max-w-[70%] bg-purple-900/20 text-white px-4 py-3 rounded-2xl border border-purple-500/20">
                 Thinking…
               </div>
             </div>
