@@ -1,167 +1,168 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Pie } from "react-chartjs-2"
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
-import { useState, useEffect } from "react"
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import axios from "axios";
-import { getToken, removeToken } from "../utils/token";
-import { decodeToken } from "../utils/token";
+import { getToken, decodeToken } from "../utils/token";
 import SideBar from "../components/SideBar";
+import {
+  FaArrowUp,
+  FaArrowDown,
+  FaWallet,
+  FaList,
+  FaClock,
+  FaChartPie,
+  FaRobot,
+} from "react-icons/fa";
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const UserDashboard = () => {
-
-
   const [transaction, setTransaction] = useState([]);
   const [recentTransaction, setRecentTransaction] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
-
     const load = async () => {
-      try {
-        await Promise.all([fetchData(), fetchRecentData()]);
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
+      await Promise.all([fetchData(), fetchRecentData()]);
+      setIsLoading(false);
     };
-
     load();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [])
-
+  }, []);
 
   const fetchData = async () => {
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/get`, {
-        headers: {
-          Authorization: `Bearer ${getToken()}`
-        }
-      });
-
-      setTransaction(res.data.data);
-    }
-    catch (err) {
-      console.log(err)
-    }
-  }
+    const res = await axios.get(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,
+      { headers: { Authorization: `Bearer ${getToken()}` } }
+    );
+    setTransaction(res.data.data);
+  };
 
   const fetchRecentData = async () => {
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/recent`, {
-        headers: {
-          Authorization: `Bearer ${getToken()}`
-        }
-      });
-      setRecentTransaction(res.data.recent);
-    }
-    catch (err) {
-      console.log(err)
-    }
-  }
-  const decodedData = decodeToken(getToken())
+    const res = await axios.get(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/recent`,
+      { headers: { Authorization: `Bearer ${getToken()}` } }
+    );
+    setRecentTransaction(res.data.recent);
+  };
 
-  const totalEarning = transaction.filter((item) => item.type === "income").reduce((sum, item) => sum + item.amount, 0);
-  const totalSpent = transaction.filter((item) => item.type === "expense").reduce((sum, item) => sum + item.amount, 0);
-  const availableBalance = totalEarning - totalSpent
+  const decodedData = decodeToken(getToken());
+
+  const totalEarning = transaction
+    .filter(t => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalSpent = transaction
+    .filter(t => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const availableBalance = totalEarning - totalSpent;
 
   const pieData = {
-    labels: [...new Set(transaction.map((item) => item.category))],
+    labels: [...new Set(transaction.map(t => t.category))],
     datasets: [
       {
         label: "Your Expenses",
-        data: transaction.map((item) => item.amount),
-        backgroundColor: ["#14b8a6", "#6366f1", "#f59e0b", "#ef4444", "#10b981", "#8b5cf6", "#f43f5e"],
+        data: transaction.map(t => t.amount),
+        backgroundColor: [
+          "#14b8a6",
+          "#6366f1",
+          "#f59e0b",
+          "#ef4444",
+          "#10b981",
+          "#8b5cf6",
+        ],
         borderColor: "#1e293b",
         borderWidth: 1,
-
-      }
-    ]
+      },
+    ],
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white flex">
-      
-      <SideBar/>
+      <SideBar />
 
       <main className="flex-1 p-6">
-        <div className="flex justify-between">
-          <div className="flex flex-col" >
-        <h1 className="text-3xl font-bold text-white mb-2">Welcome, {decodedData.username}</h1>
-        <p className="text-white/70 mb-8">Here’s your financial overview:</p>
-        </div>
-        <Link to="/ask-chatbot"><button className="bg-purple-600 hover:bg-purple-700 text-white w-fit h-fit rounded-2xl px-4 py-3 font-bold transition">Chat with AI-Assistant</button></Link>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              Welcome, {decodedData.username}
+            </h1>
+            <p className="text-white/70">Here’s your financial overview</p>
+          </div>
+
+          <Link to="/ask-chatbot">
+            <button className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-5 py-3 rounded-2xl font-bold transition">
+              <FaRobot /> Chat with AI
+            </button>
+          </Link>
         </div>
 
         {isLoading ? (
-          <div className="mt-6 bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md text-white/80">
+          <div className="bg-purple-900/20 p-6 rounded-2xl">
             Loading your dashboard…
           </div>
-        ) : transaction.length === 0 ? (
-          <div className="mt-6 bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-8 shadow-md">
-            <h2 className="text-2xl font-bold text-white">Let’s get started</h2>
-            <p className="text-white/70 mt-2">Add your first expense to see your dashboard.</p>
-
-            <div className="mt-6 flex gap-3">
-              <Link
-                to="/add"
-                className="bg-purple-600 hover:bg-purple-700 text-white rounded-2xl px-5 py-3 font-bold transition"
-              >
-                 Add New Expense
-              </Link>
-              
-            </div>
-          </div>
         ) : (
-
           <>
             <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-              <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
-                <h2 className="text-xl font-semibold text-white"> Total Earnings</h2>
-                <p className="text-3xl font-bold mt-2 text-green-400">₹ {totalEarning}</p>
+
+              <div className="bg-purple-900/20 border border-transparent hover:border-green-500 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105">
+                <FaArrowUp className="text-green-400 text-2xl mx-auto mb-2" />
+                <p>Total Earnings</p>
+                <h2 className="text-2xl font-bold text-green-400">
+                  ₹ {totalEarning}
+                </h2>
               </div>
 
-              <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
-                <h2 className="text-xl font-semibold text-white"> Amount Spent</h2>
-                <p className="text-3xl font-bold mt-2 text-red-400">₹ {totalSpent}</p>
+              <div className="bg-purple-900/20 border border-transparent hover:border-red-500 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105">
+                <FaArrowDown className="text-red-400 text-2xl mx-auto mb-2" />
+                <p>Amount Spent</p>
+                <h2 className="text-2xl font-bold text-red-400">
+                  ₹ {totalSpent}
+                </h2>
               </div>
 
-              <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
-                <h2 className="text-xl font-semibold text-white">Available Balance</h2>
-                <p className="text-3xl font-bold mt-2 text-yellow-400">₹ {availableBalance}</p>
+              <div className="bg-purple-900/20 border border-transparent hover:border-yellow-400 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105">
+                <FaWallet className="text-yellow-400 text-2xl mx-auto mb-2" />
+                <p>Available Balance</p>
+                <h2 className="text-2xl font-bold text-yellow-400">
+                  ₹ {availableBalance}
+                </h2>
               </div>
 
-              <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md hover:scale-105 transition-transform duration-300">
-                <h2 className="text-xl font-semibold text-white">Number of Transactions</h2>
-                <p className="text-3xl font-bold mt-2 text-white">{transaction.length}</p>
+              <div className="bg-purple-900/20 border border-transparent hover:border-purple-500 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105">
+                <FaList className="text-white text-2xl mx-auto mb-2" />
+                <p>Transactions</p>
+                <h2 className="text-2xl font-bold">{transaction.length}</h2>
               </div>
+
             </div>
 
-            <div className="mt-10 bg-purple-900/20 backdrop-blur border border-purple-500/20 rounded-2xl p-6 shadow-md">
-              <h2 className="text-xl font-semibold text-white mb-4">Recent Expenses</h2>
-              <ul className="space-y-3 text-sm text-white/80">
-                {recentTransaction.map((item, index) => (
-                  <li
-                    key={index}
-                    className="flex justify-between items-center border-b border-purple-500/10 pb-2"
-                  >
+            <div className="mt-10 bg-purple-900/20 p-6 rounded-2xl">
+              <h2 className="flex items-center gap-2 text-xl font-semibold mb-4">
+                <FaClock /> Recent Expenses
+              </h2>
+
+              <ul className="space-y-3">
+                {recentTransaction.map((item, i) => (
+                  <li key={i} className="flex justify-between text-sm">
                     <span>{item.category} - ₹{item.amount}</span>
                     <span>{item.note}</span>
-                    <span className="text-white/50 ml-2">
+                    <span className="text-white/50">
                       {new Date(item.date).toLocaleDateString()}
                     </span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="w-fit h-auto m-auto mt-5">
-              <h3 className="text-white text-3xl font-semibold mb-8">Expense Distribution</h3>
-              <Pie data={pieData} />
+
+            <div className="mt-10 text-center">
+              <h3 className="flex justify-center items-center gap-2 text-2xl font-semibold mb-6">
+                <FaChartPie /> Expense Distribution
+              </h3>
+              <div className="w-fit mx-auto">
+                <Pie data={pieData} />
+              </div>
             </div>
           </>
         )}

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { FaMicrophone } from "react-icons/fa";
 
 
+
 const AskChatbot = () => {
   const MAX_SEARCHES = 3;
   const navigate = useNavigate(); 
@@ -89,19 +90,23 @@ const AskChatbot = () => {
           Chat-History
         </h3>
         <div className="flex flex-col gap-3">
-          {messages
-            .filter((m) => m.role === "user")
-            .slice(-10)
-            .map((m, index) => (
-            <button
-              key={index}
-              className="text-left text-white/80 bg-purple-900/20 border border-purple-500/20 hover:border-purple-400/40 hover:text-white rounded-lg px-4 py-3 transition duration-300"
-              onClick={() => setUserQuestion(m.content)}
-            >
-              <span className="font-semibold text-white mr-2">Q{index + 1}:</span>
-              {m.content}
-            </button>
-          ))}
+          {messages.filter((m) => m.role === "user").length === 0 ? (
+            <p className="text-center text-white/50">No data available</p>
+          ) : (
+            messages
+              .filter((m) => m.role === "user")
+              .slice(-10)
+              .map((m, index) => (
+                <button
+                  key={index}
+                  className="text-left text-white/80 bg-purple-900/20 border border-purple-500/20 hover:border-purple-400/40 hover:text-white rounded-lg px-4 py-3 transition duration-300"
+                  onClick={() => setUserQuestion(m.content)}
+                >
+                  <span className="font-semibold text-white mr-2">Q{index + 1}:</span>
+                  {m.content}
+                </button>
+              ))
+          )}
         </div>
       </div>
 
@@ -132,18 +137,14 @@ const AskChatbot = () => {
           </button>
           <button
             onClick={() => handleSearch(userQuestion)}
-            disabled={searchCount >= MAX_SEARCHES}
+            disabled={searchCount >= MAX_SEARCHES || showLoader}
             className={`px-6 py-3 min-w-20 h-12 text-white font-semibold rounded-3xl transition-all duration-300 shadow-lg text-lg ${
-              searchCount >= MAX_SEARCHES
-                ? "bg-purple-900/30 cursor-not-allowed"
+              searchCount >= MAX_SEARCHES || showLoader
+                ? "bg-purple-900/30 cursor-not-allowed opacity-60"
                 : "bg-purple-600 hover:bg-purple-700"
             }`}
           >
-            {showLoader ? (
-              <img className="w-12 h-10 bg-transparent" src="loader-unscreen.gif" alt="loading" />
-            ) : (
-              "Send"
-            )}
+            Send
           </button>
         </div>
 
