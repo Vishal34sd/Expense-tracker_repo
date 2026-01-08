@@ -9,7 +9,7 @@ import { FaMicrophone } from "react-icons/fa";
 
 const AskChatbot = () => {
   const MAX_SEARCHES = 3;
-  const navigate = useNavigate(); // ✅ for redirecting to dashboard
+  const navigate = useNavigate(); 
 
   const [userQuestion, setUserQuestion] = useState("");
   const [showLoader, setShowLoader] = useState(false);
@@ -72,7 +72,7 @@ const AskChatbot = () => {
 
   
 
-  // Keep the chat scrolled to the newest message
+  
   useEffect(() => {
     const el = document.getElementById("chat-scroll");
     if (!el) return;
@@ -106,7 +106,7 @@ const AskChatbot = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="bg-purple-900/20 backdrop-blur border border-purple-500/20 shadow-xl rounded-4xl p-10 sm:p-12 flex-1 flex flex-col">
+      <div className=" rounded-4xl p-10 sm:p-12 flex-1 flex flex-col">
         <h2 className="text-4xl font-bold text-white mb-4 text-center">
           AI Expense Assistant
         </h2>
@@ -121,7 +121,7 @@ const AskChatbot = () => {
             onChange={(e) => {
               setUserQuestion(e.target.value);
             }}
-            className="flex-1 p-3 rounded-md bg-purple-900/20 text-white border border-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-500/40 h-12"
+            className="flex-1 p-5 rounded-3xl bg-purple-900/20 text-white border border-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-500/40 h-12"
             placeholder="Type your question..."
           />
           <button
@@ -133,7 +133,7 @@ const AskChatbot = () => {
           <button
             onClick={() => handleSearch(userQuestion)}
             disabled={searchCount >= MAX_SEARCHES}
-            className={`px-6 py-3 min-w-24 h-12 text-white font-semibold rounded-md transition-all duration-300 shadow-lg text-lg ${
+            className={`px-6 py-3 min-w-20 h-12 text-white font-semibold rounded-3xl transition-all duration-300 shadow-lg text-lg ${
               searchCount >= MAX_SEARCHES
                 ? "bg-purple-900/30 cursor-not-allowed"
                 : "bg-purple-600 hover:bg-purple-700"

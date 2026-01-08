@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import axios from "axios";
 import { getToken, removeToken } from "../utils/token";
 import { decodeToken } from "../utils/token";
+import SideBar from "../components/SideBar";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const UserDashboard = () => {
@@ -85,18 +86,8 @@ const UserDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white flex">
-
-      <aside className="w-64 bg-purple-900/20 backdrop-blur border-r border-purple-500/20 p-6 hidden sm:block">
-        <h2 className="text-2xl font-bold text-white mb-8 text-center">ExpenseTracker</h2>
-        <nav className="space-y-4 text-sm text-white/80">
-          <Link to="/home" className="block hover:text-white">🏠 Home</Link>
-          <Link to="/addTransaction" className="block hover:text-white">📜 See All Transactions</Link>
-          <Link  to = "/summary"className="block hover:text-white">📊 View Summary</Link>
-          <Link to="/add" className="block hover:text-white">➕ Add New Expense</Link>
-          <Link to = "/changePassword"className="block hover:text-white">⚙️ Change Password</Link>
-          <Link to="/" className="block hover:text-white" onClick={() => removeToken()}>🚪 Logout</Link>
-        </nav>
-      </aside>
+      
+      <SideBar/>
 
       <main className="flex-1 p-6">
         <div className="flex justify-between">
