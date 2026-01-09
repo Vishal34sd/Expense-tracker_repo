@@ -1,52 +1,73 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { FiHome, FiBookOpen, FiStar, FiInfo } from "react-icons/fi";
+import { FaWallet } from "react-icons/fa";
 
-const Navbar = () => {
+const navItems = [
+  { label: "Home", id: "home", icon: FiHome },
+  { label: "How it Works", id: "how-it-works", icon: FiBookOpen },
+  { label: "Features", id: "features", icon: FiStar },
+  { label: "About", id: "about", icon: FiInfo },
+];
+
+const Navbar = ({ onNavigate }) => {
   return (
     <motion.nav
       initial={{ y: -80, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="fixed top-6 left-0 right-0 z-50 px-6"
+      className="fixed top-4 left-0 right-0 z-50  px-4 sm:px-6"
     >
-      {/* Main Navbar Container */}
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        
-        {/* Brand Section */}
-        <motion.h1
+      {/* Navbar Container */}
+      <div
+        className="
+          max-w-7xl mx-auto
+          flex items-center justify-between
+          px-4 sm:px-6 py-6 mt-6
+          rounded-full
+          backdrop-blur-lg
+          bg-purple-900/20
+          border border-purple-600/40
+          shadow-[0_0_25px_rgba(168,85,247,0.25)]
+        "
+      >
+        {/* Brand */}
+        <motion.div
           whileHover={{ scale: 1.05 }}
-          className="text-4xl font-bold tracking-wide text-white"
-        >
-          smartExpense
-        </motion.h1>
-
-        {/* Menu Section */}
-        <div
           className="
-            px-8 py-3
-            rounded-full
-            backdrop-blur-lg
-            bg-purple-900/20
-            border border-purple-600/40
-            shadow-[0_0_25px_rgba(168,85,247,0.25)]
-            w-1/2
+            px-10 py-2 
+            text-white
+            font-bold
+            text-xl sm:text-xl
+            tracking-wide
+            cursor-pointer
           "
         >
-          <ul className="flex space-x-24 text-sm font-medium text-white/80">
-            {["Home", "How it Works", "Features", "About"].map((item, idx) => (
-              <motion.li
-                key={idx}
-                whileHover={{ y: -2 }}
-                className="relative cursor-pointer group"
+          <span className="inline-flex items-center gap-2">
+            <span>smartExpense</span>
+          </span>
+        </motion.div>
+
+        {/* Menu - desktop only */}
+        <ul className="hidden md:flex items-center space-x-16 text-xl font-medium text-white/80">
+          {navItems.map((item) => (
+            <motion.li
+              key={item.id}
+              whileHover={{ y: -2 }}
+              className="relative cursor-pointer group"
+            >
+              <button
+                type="button"
+                onClick={() => onNavigate && onNavigate(item.id)}
+                className="flex items-center gap-2 group-hover:text-white transition focus:outline-none"
               >
-                <span className="group-hover:text-white transition">
-                  {item}
-                </span>
-                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-purple-400 group-hover:w-full transition-all duration-300" />
-              </motion.li>
-            ))}
-          </ul>
-        </div>
+                <item.icon className="text-lg" />
+                <span>{item.label}</span>
+              </button>
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-purple-400 group-hover:w-full transition-all duration-300" />
+            </motion.li>
+          ))}
+        </ul>
       </div>
     </motion.nav>
   );
