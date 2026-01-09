@@ -22,12 +22,12 @@ const Navbar = ({ onNavigate }) => {
       <div
         className="
           max-w-7xl mx-auto
-          flex items-center justify-between
-          px-4 sm:px-6 py-6 mt-6
+          flex items-center justify-center md:justify-between
+          px-4 sm:px-6  mt-6
           rounded-full
           backdrop-blur-lg
           bg-purple-900/20
-          border border-purple-600/40
+          border border-purple-600/40 
           shadow-[0_0_25px_rgba(168,85,247,0.25)]
         "
       >
@@ -35,21 +35,21 @@ const Navbar = ({ onNavigate }) => {
         <motion.div
           whileHover={{ scale: 1.05 }}
           className="
-            px-10 py-2 
+            px-10 py-2  
             text-white
             font-bold
-            text-xl sm:text-xl
+            text-3xl sm:text-3xl
             tracking-wide
             cursor-pointer
           "
         >
           <span className="inline-flex items-center gap-2">
-            <span>smartExpense</span>
+            <img src ="/smartExpense-logo.png " alt="logo"></img>
           </span>
         </motion.div>
 
         {/* Menu - desktop only */}
-        <ul className="hidden md:flex items-center space-x-16 text-xl font-medium text-white/80">
+        <ul className="hidden md:flex items-center space-x-16 text-xl font-medium text-white/80 mr-10">
           {navItems.map((item) => (
             <motion.li
               key={item.id}

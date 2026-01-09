@@ -133,7 +133,7 @@ export default function LandingPage() {
       <section
         id="home"
         ref={homeRef}
-        className="pt-28 sm:pt-32 px-4 sm:px-6"
+        className="pt-44 sm:pt-48 md:pt-52 px-4 sm:px-6"
       >
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* LEFT */}

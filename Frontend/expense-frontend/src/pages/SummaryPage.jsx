@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Link } from "react-router-dom";
-import { decodeToken, getToken } from "../utils/token.js";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { getToken } from "../utils/token.js";
+import * as XLSX from "xlsx";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -19,10 +18,6 @@ const ViewSummary = () => {
   const [averageExpense, setAverageExpense] = useState(0);
   const [categoryData, setCategoryData] = useState({});
   const [pieData, setPieData] = useState({});
-  const summaryRef = useRef();
-  
-  const userInfo = decodeToken(getToken());
-  const username = userInfo.username ;
 
   useEffect(() => {
     fetchData();
@@ -69,40 +64,47 @@ const ViewSummary = () => {
     });
   };
 
-  const downloadPDF = () => {
-    const currentDate = new Date();
-    const dateString = currentDate.toLocaleDateString();
-    const timeString = currentDate.toLocaleTimeString();
+ const excelData = transactions.map((expense) => ({
+  "Expense ID": expense._id,
+  "Expense Name": expense.category,
+  "Amount": expense.amount,
+  "Expense Type": expense.type,
+}));
 
-    const input = summaryRef.current;
-    html2canvas(input, { scale: 2, backgroundColor: "#1f2937" })
-      .then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
+const exportToExcel = () => {
+  const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-        const imgWidth = 195;
-        const pageHeight = 297;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  worksheet["!cols"] = [
+    { wch: 30 },
+    { wch: 30 },
+    { wch: 15 },
+    { wch: 20 },
+  ];
+
+  Object.keys(worksheet).forEach((cell) => {
+    if (cell.startsWith("!")) return;
+    worksheet[cell].s = {
+      alignment: {
+        horizontal: "center",
+        vertical: "center",
+        wrapText: true,
+      },
+    };
+  });
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Expenses");
+
+  XLSX.writeFile(workbook, "Expense_Report.xlsx");
+};
 
 
-        pdf.addImage(imgData, "PNG", 7, 7, imgWidth, imgHeight);
 
 
-        pdf.setFontSize(12);
-        pdf.setTextColor(0, 0, 0);
-        const footerX = 10;
-        const footerY = pageHeight - 30;
-        pdf.text(`Downloaded by: ${username}`, footerX, footerY);
-        pdf.text(`Date: ${dateString}`, footerX, footerY + 6);
-        pdf.text(`Time: ${timeString}`, footerX, footerY + 12);
-
-        pdf.save(`Expense-Summary-${username}.pdf`);
-      });
-  };
 
   return (
     <div className="min-h-screen py-10 px-6 md:px-20 bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white">
-      <div ref={summaryRef} className="p-6 rounded-2xl shadow-xl max-w-6xl mx-auto bg-purple-900/20 backdrop-blur border border-purple-500/20">
+      <div className="p-6 rounded-2xl shadow-xl max-w-6xl mx-auto bg-purple-900/20 backdrop-blur border border-purple-500/20">
         <h2 className="text-3xl font-bold mb-6 text-center text-white">Expense Summary</h2>
 
         {isLoading ? (
@@ -128,10 +130,10 @@ const ViewSummary = () => {
           <>
             <div className="flex justify-end mb-6">
               <button
-                onClick={downloadPDF}
-                className="px-4 py-2 rounded-md font-bold bg-purple-600 hover:bg-purple-700 text-white transition"
+              onClick={exportToExcel}
+                className="px-4 py-2 rounded-3xl font-bold bg-purple-600 hover:bg-purple-700 text-white transition"
               >
-                Download Summary
+                Download Expense Report
               </button>
             </div>
 
