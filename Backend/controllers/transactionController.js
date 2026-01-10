@@ -3,18 +3,13 @@ import Transaction from "../model/transactionSchema.js";
 const getAllTransaction = async (req, res) => {
   try {
     const allTransaction = await Transaction.find({userId: req.userInfo.userId});
-    if (allTransaction && allTransaction.length > 0) {
-      res.status(200).json({
-        success: true,
-        message: "All data fetched successfully",
-        data: allTransaction
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: "No record found"
-      });
-    }
+    res.status(200).json({
+      success: true,
+      message: allTransaction.length > 0
+        ? "All data fetched successfully"
+        : "No record found",
+      data: allTransaction
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -120,12 +115,6 @@ const recentTransaction = async (req, res)=>{
    const recentTrans = await Transaction.find({ userId: req.userInfo.userId })
   .sort({ date: -1 })
   .limit(3);
-    if(!recentTrans){
-      res.status(400).json({
-        success : false ,
-        message : "Not found "
-      })
-    }
     return res.status(200).json({
       success : true ,
       message : "recent transaction fetched ",
