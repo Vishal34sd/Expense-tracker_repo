@@ -1,7 +1,8 @@
 import React, { useState , useEffect } from "react";
 import axios from "axios";
 import { getToken } from "../utils/token";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "notistack";
 
 const ChangePassword = () => {
   const [showOld, setShowOld] = useState(false);
@@ -10,6 +11,7 @@ const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState("");
 
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
   const submitHandler = async(e)=>{
     e.preventDefault();
@@ -19,12 +21,14 @@ const ChangePassword = () => {
           Authorization : `Bearer ${getToken()}`
         }
       });
-      alert("Password changed successfully");
+      enqueueSnackbar("Password changed successfully.", { variant: "success" });
       navigate("/dashboard");
 
     }
     catch(err){
-      console.log(err)
+      console.log(err);
+      const message = err?.response?.data?.message || "Could not change password. Please try again.";
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 

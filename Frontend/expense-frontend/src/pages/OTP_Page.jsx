@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { getToken } from "../utils/token";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useSnackbar } from "notistack";
 
 const OTP_Page = () => {
   const [otp, setOtp] = useState("");
@@ -9,11 +10,12 @@ const OTP_Page = () => {
   const [expired, setExpired] = useState(false);
   const intervalRef = useRef(null);
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
     if (expired) {
-      alert("OTP has expired. Please resend to get a new code.");
+      enqueueSnackbar("OTP has expired. Please resend to get a new code.", { variant: "warning" });
       return;
     }
 
@@ -27,12 +29,13 @@ const OTP_Page = () => {
           },
         }
       );
-      alert("Email Verified Successfully!")
+      enqueueSnackbar("Email verified successfully!", { variant: "success" });
       navigate("/dashboard");
     } catch (err) {
-  console.error("OTP verification failed:", err.response?.data || err.message);
-  alert(err.response?.data?.message || "Verification failed. Please check your OTP or try again.");
-}
+      console.error("OTP verification failed:", err.response?.data || err.message);
+      const message = err.response?.data?.message || "Verification failed. Please check your OTP or try again.";
+      enqueueSnackbar(message, { variant: "error" });
+    }
   };
 
   // format seconds to MM:SS
@@ -89,11 +92,10 @@ const OTP_Page = () => {
           return prev - 1;
         });
       }, 1000);
-
-      alert("A new OTP has been sent to your email (if the server supports resend).");
+      enqueueSnackbar("A new OTP has been sent to your email.", { variant: "info" });
     } catch (err) {
       console.error("Resend OTP failed:", err);
-      alert("Could not resend OTP. Please try again later or re-register.");
+      enqueueSnackbar("Could not resend OTP. Please try again later or re-register.", { variant: "error" });
     }
   };
 

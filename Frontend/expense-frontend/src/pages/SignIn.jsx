@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import {useState} from "react"
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"
+import axios from "axios";
+import { useSnackbar } from "notistack";
 import { storeToken } from "../utils/token";
-import Swal from "sweetalert2";
 
 const SignIn = () => {
   const [email , setEmail] = useState("")
@@ -12,6 +12,7 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showLoader , setShowLoader] = useState(false);
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
   const formHandler = async(event)=>{
     event.preventDefault();
@@ -19,26 +20,16 @@ const SignIn = () => {
     try{
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/login`, {email , password});
       storeToken(res.data.token);
-      if(!res){
-        Swal.fire({
-          title : "Login Failed",
-          text : "Please try again !",
-          timer : 3000
-
-        });
-      }
-      else{
-        Swal.fire({
-          title : "Login Successfull",
-          text : "Welcome back !",
-          timer : 3000,
-        
-        });
-      }
+      enqueueSnackbar("Login successful. Welcome back!", { variant: "success" });
       navigate("/dashboard")
     }
     catch(err){
-      console.log(err)
+      console.log(err);
+      const message = err?.response?.data?.message || "Login failed. Please check your credentials and try again.";
+      enqueueSnackbar(message, { variant: "error" });
+    }
+    finally {
+      setShowLoader(false);
     }
   }
   return (

@@ -14,6 +14,8 @@ import OTP_Page from './pages/OTP_Page.jsx'
 import ChangePassword from './pages/ChangePassword.jsx'
 import AskChatbot from './pages/AskChatbot.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
+import { SnackbarProvider } from "notistack";
+
 
 const appRouter = createBrowserRouter([
   {
@@ -68,6 +70,11 @@ const appRouter = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById('root')).render(
-
+  <SnackbarProvider
+      maxSnack={3}
+      autoHideDuration={3000}
+      anchorOrigin={{ vertical: "top", horizontal: "center" }}
+    >
   <RouterProvider router={appRouter} />
+  </SnackbarProvider>
 )

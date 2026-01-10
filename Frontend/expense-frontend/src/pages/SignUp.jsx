@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useSnackbar } from "notistack";
 import { storeToken } from "../utils/token";
 
 const SignUp = () => {
@@ -10,6 +11,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
   const formHandler = async (event) => {
     event.preventDefault();
@@ -21,9 +23,14 @@ const SignUp = () => {
       );
       console.log(res.data);
       storeToken(res.data.token);
+      enqueueSnackbar("Registration successful. Please verify the OTP sent to your email.", { variant: "success" });
       navigate("/otp-verify");
     } catch (err) {
       console.log(err);
+      const message = err?.response?.data?.message || "Registration failed. Please try again.";
+      enqueueSnackbar(message, { variant: "error" });
+    } finally {
+      setShowLoader(false);
     }
   };
 

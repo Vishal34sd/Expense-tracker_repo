@@ -5,12 +5,14 @@ import ReactMarkdown from "react-markdown";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import { useNavigate } from "react-router-dom"; 
 import { FaMicrophone } from "react-icons/fa";
+import { useSnackbar } from "notistack";
 
 
 
 const AskChatbot = () => {
   const MAX_SEARCHES = 3;
   const navigate = useNavigate(); 
+  const { enqueueSnackbar } = useSnackbar();
 
   const [userQuestion, setUserQuestion] = useState("");
   const [showLoader, setShowLoader] = useState(false);
@@ -62,7 +64,7 @@ const AskChatbot = () => {
   const { transcript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
   if (!browserSupportsSpeechRecognition) {
-    alert("Browser doesn't support speech recognition.");
+    enqueueSnackbar("Browser doesn't support speech recognition.", { variant: "warning" });
   }
 
   useEffect(() => {

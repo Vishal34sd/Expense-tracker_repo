@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios"
-import {useNavigate} from "react-router-dom"
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "notistack";
 import { getToken } from "../utils/token";
 
 const AddExpense = () => {
@@ -12,6 +13,7 @@ const AddExpense = () => {
   });
 
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
   const inputHandler = (e)=>{
        const {name , value} = e.target ;
@@ -31,13 +33,15 @@ const AddExpense = () => {
             }
           });
           console.log(form);
-          alert("expense added");
+          enqueueSnackbar("Entry added successfully.", { variant: "success" });
           navigate("/dashboard");
 
 
         }
         catch(err){
           console.log(err);
+          const message = err?.response?.data?.message || "Could not add entry. Please try again.";
+          enqueueSnackbar(message, { variant: "error" });
         }
 
   }
