@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 
@@ -10,7 +10,6 @@ const SignIn = () => {
   const [showLoader, setShowLoader] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
   const { enqueueSnackbar } = useSnackbar();
 
   const formHandler = async (event) => {
@@ -27,6 +26,7 @@ const SignIn = () => {
       if (res.data.user) {
         localStorage.setItem("userInfo", JSON.stringify(res.data.user));
       }
+
       enqueueSnackbar("Login successful. Welcome back!", {
         variant: "success",
       });
@@ -36,6 +36,7 @@ const SignIn = () => {
       const message =
         err?.response?.data?.message ||
         "Login failed. Please check your credentials and try again.";
+
       enqueueSnackbar(message, { variant: "error" });
     } finally {
       setShowLoader(false);
@@ -45,19 +46,6 @@ const SignIn = () => {
   const handleGoogleAuth = () => {
     window.location.href = `${import.meta.env.VITE_BACKEND_URL}/api/v1/google`;
   };
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const tokenFromUrl = params.get("token");
-
-    if (tokenFromUrl && typeof tokenFromUrl === "string") {
-      enqueueSnackbar("Google login successful", {
-        variant: "success",
-      });
-
-      navigate("/dashboard", { replace: true });
-    }
-  }, [location.search, enqueueSnackbar, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0b0617] via-[#120824] to-black flex items-center justify-center px-4 text-white">
