@@ -7,8 +7,8 @@ Built with the **MERN stack (MongoDB, Express, React, Node.js)**, this platform 
 
 ## 📸 Project Screenshots
 
-### 🔐 Authentication Page
-![Authentication Page](./images/pic1.png)
+### 🔐 Landing Page
+![Landing Page](./images/pic1.png)
 
 ### 📊 Interactive Dashboard
 ![Interactive Dashboard](./images/pic2.png)
