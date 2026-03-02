@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { getToken } from "../utils/token";
+import axios from "axios"
+import {getToken} from "../utils/token"
+
 
 const AddExpense = () => {
   const [form , setForm ] = useState({
@@ -27,11 +28,13 @@ const AddExpense = () => {
         e.preventDefault();
          console.log("Submitting Form:", form);
         try{
-          const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/add`, form,{
-            headers : {
-              Authorization : `Bearer ${getToken()}`
-            }
-          });
+          const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/add`, form ,
+            {
+                      headers: {
+                        Authorization: `Bearer ${getToken()}`,
+                      },
+                    }
+          );
           console.log(form);
           enqueueSnackbar("Entry added successfully.", { variant: "success" });
           navigate("/dashboard");

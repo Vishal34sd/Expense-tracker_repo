@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import axios from "axios";
@@ -19,59 +19,85 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const UserDashboard = () => {
   const [transaction, setTransaction] = useState([]);
-  const [recentTransaction, setRecentTransaction] = useState([]);
+  const [recentExpense, setRecentExpense] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tokenFromUrl = params.get("token");
+
+    if (tokenFromUrl && typeof tokenFromUrl === "string") {
+      localStorage.setItem("token", tokenFromUrl);
+      navigate("/dashboard", { replace: true });
+    }
+  }, [location, navigate]);
+
+  const token = getToken();
+  let decodedData = {};
+
+  if (token && typeof token === "string") {
+    try {
+      decodedData = decodeToken(token);
+    } catch {
+      decodedData = {};
+    }
+  }
 
   useEffect(() => {
     const load = async () => {
       try {
-        await Promise.all([fetchData(), fetchRecentData()]);
-      } catch (err) {
-        console.error("Failed to load dashboard data", err);
-        setError("Could not load dashboard data. Please try again later.");
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const allTransactions = res.data.data || [];
+
+        setTransaction(allTransactions);
+
+        const expensesOnly = allTransactions
+          .filter((t) => t.type === "expense")
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5);
+
+        setRecentExpense(expensesOnly);
+
+      } catch {
+        setError("Could not load dashboard data.");
       } finally {
         setIsLoading(false);
       }
     };
-    load();
-  }, []);
 
-  const fetchData = async () => {
-    const res = await axios.get(
-      `${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,
-      { headers: { Authorization: `Bearer ${getToken()}` } }
-    );
-    setTransaction(res.data.data || []);
-  };
+    if (token) load();
+    else setIsLoading(false);
 
-  const fetchRecentData = async () => {
-    const res = await axios.get(
-      `${import.meta.env.VITE_BACKEND_URL}/api/v1/recent`,
-      { headers: { Authorization: `Bearer ${getToken()}` } }
-    );
-    setRecentTransaction(res.data.recent || []);
-  };
-
-  const token = getToken();
-  const decodedData = decodeToken(token) || {};
+  }, [token]);
 
   const totalEarning = transaction
-    .filter(t => t.type === "income")
+    .filter((t) => t.type === "income")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const totalSpent = transaction
-    .filter(t => t.type === "expense")
+    .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const availableBalance = totalEarning - totalSpent;
 
   const pieData = {
-    labels: [...new Set(transaction.map(t => t.category))],
+    labels: [...new Set(transaction.map((t) => t.category))],
     datasets: [
       {
         label: "Your Expenses",
-        data: transaction.map(t => t.amount),
+        data: transaction.map((t) => t.amount),
         backgroundColor: [
           "#14b8a6",
           "#6366f1",
@@ -94,7 +120,7 @@ const UserDashboard = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              Welcome, {decodedData.username || "User"}
+              Welcome, {decodedData?.email || "User"}
             </h1>
             <p className="text-white/70">Here’s your financial overview</p>
           </div>
@@ -117,8 +143,7 @@ const UserDashboard = () => {
         ) : (
           <>
             <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-4">
-
-              <div className="bg-purple-900/20 border border-transparent hover:border-green-500 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105">
+              <div className="bg-purple-900/20 rounded-2xl p-6 text-center">
                 <FaArrowUp className="text-green-400 text-2xl mx-auto mb-2" />
                 <p>Total Earnings</p>
                 <h2 className="text-2xl font-bold text-green-400">
@@ -126,7 +151,7 @@ const UserDashboard = () => {
                 </h2>
               </div>
 
-              <div className="bg-purple-900/20 border border-transparent hover:border-red-500 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105">
+              <div className="bg-purple-900/20 rounded-2xl p-6 text-center">
                 <FaArrowDown className="text-red-400 text-2xl mx-auto mb-2" />
                 <p>Amount Spent</p>
                 <h2 className="text-2xl font-bold text-red-400">
@@ -134,7 +159,7 @@ const UserDashboard = () => {
                 </h2>
               </div>
 
-              <div className="bg-purple-900/20 border border-transparent hover:border-yellow-400 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105">
+              <div className="bg-purple-900/20 rounded-2xl p-6 text-center">
                 <FaWallet className="text-yellow-400 text-2xl mx-auto mb-2" />
                 <p>Available Balance</p>
                 <h2 className="text-2xl font-bold text-yellow-400">
@@ -142,51 +167,13 @@ const UserDashboard = () => {
                 </h2>
               </div>
 
-              <div className="bg-purple-900/20 border border-transparent hover:border-purple-500 rounded-2xl p-6 text-center transition-all duration-300 hover:scale-105">
+              <div className="bg-purple-900/20 rounded-2xl p-6 text-center">
                 <FaList className="text-white text-2xl mx-auto mb-2" />
                 <p>Transactions</p>
-                <h2 className="text-2xl font-bold">{transaction.length}</h2>
+                <h2 className="text-2xl font-bold">
+                  {transaction.length}
+                </h2>
               </div>
-
-            </div>
-
-            {transaction.length === 0 && !error && (
-              <div className="mt-10 bg-purple-900/20 p-8 rounded-2xl text-center border border-purple-500/30">
-                <h2 className="text-2xl font-bold text-white">Get Started</h2>
-                <p className="text-white/70 mt-2">
-                  You don&apos;t have any transactions yet. Add your first expense to see your dashboard come to life.
-                </p>
-                <div className="mt-6">
-                  <Link
-                    to="/add"
-                    className="inline-block bg-purple-600 hover:bg-purple-700 text-white rounded-2xl px-5 py-3 font-bold transition"
-                  >
-                    Add New Expense
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            <div className="mt-10 bg-purple-900/20 p-6 rounded-2xl">
-              <h2 className="flex items-center gap-2 text-xl font-semibold mb-4">
-                <FaClock /> Recent Expenses
-              </h2>
-
-              {recentTransaction.length === 0 ? (
-                <p className="text-white/60 text-sm">No recent expenses yet.</p>
-              ) : (
-                <ul className="space-y-3">
-                  {recentTransaction.map((item, i) => (
-                    <li key={i} className="flex justify-between text-sm">
-                      <span>{item.category} - ₹{item.amount}</span>
-                      <span>{item.note}</span>
-                      <span className="text-white/50">
-                        {new Date(item.date).toLocaleDateString()}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
 
             {transaction.length > 0 && (
@@ -196,6 +183,47 @@ const UserDashboard = () => {
                 </h3>
                 <div className="w-fit mx-auto">
                   <Pie data={pieData} />
+                </div>
+              </div>
+            )}
+
+            {recentExpense.length > 0 && (
+              <div className="mt-12">
+                <h3 className="flex items-center gap-2 text-2xl font-semibold mb-6">
+                  <FaClock /> Recent Expenses
+                </h3>
+
+                <div className="bg-purple-900/20 rounded-2xl divide-y divide-purple-500/20">
+                  {recentExpense.map((expense, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-4 hover:bg-purple-800/20 transition text-sm md:text-base"
+                    >
+                      <div className="flex items-center gap-4 flex-wrap">
+
+                        <span className="font-semibold text-white">
+                          {expense.note || "Untitled"}
+                        </span>
+
+                        <span className="text-white/40">
+                          • {expense.category}
+                        </span>
+
+                        <span className="text-white/50">
+                          • {new Date(expense.createdAt).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                        </span>
+
+                      </div>
+
+                      <span className="text-red-400 font-bold">
+                        ₹ {expense.amount}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
