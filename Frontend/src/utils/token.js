@@ -13,7 +13,6 @@ export const decodeToken = (token) => {
     const decoded = jwtDecode(token);
     return decoded;
   } catch (err) {
-    console.error("Invalid token", err);
     return null;
   }
 }

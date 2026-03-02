@@ -27,7 +27,6 @@ const OTP_Page = () => {
       enqueueSnackbar("Email verified successfully!", { variant: "success" });
       navigate("/dashboard");
     } catch (err) {
-      console.error("OTP verification failed:", err.response?.data || err.message);
       const message = err.response?.data?.message || "Verification failed. Please check your OTP or try again.";
       enqueueSnackbar(message, { variant: "error" });
     }
@@ -89,7 +88,6 @@ const OTP_Page = () => {
       }, 1000);
       enqueueSnackbar("A new OTP has been sent to your email.", { variant: "info" });
     } catch (err) {
-      console.error("Resend OTP failed:", err);
       enqueueSnackbar("Could not resend OTP. Please try again later or re-register.", { variant: "error" });
     }
   };

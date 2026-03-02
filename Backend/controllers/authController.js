@@ -55,11 +55,7 @@ const userRegister = async (req, res) => {
     }
 
     const otp = otpGenerator();
-    console.log("[OTP DEBUG] Generated OTP for registration", { email, otp });
-
-    console.log("[OTP DEBUG] Calling sendEmail for registration");
     await sendEmail(email, otp);
-    console.log("[OTP DEBUG] sendEmail completed for registration", { email });
     savedUser.otp = otp;
     savedUser.expiresIn = Date.now() + 5 * 60 * 1000; // otp expires in 5min
     await savedUser.save();
@@ -93,7 +89,6 @@ const userRegister = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("[REGISTER DEBUG] Registration error:", err);
     res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -155,7 +150,6 @@ const userLogin = async (req, res) => {
 
   }
   catch (err) {
-    console.log(err);
     return res.status(500).json({
       success: false,
       message: "Something went wrong"
@@ -206,7 +200,6 @@ const verifyOTP = async (req, res) => {
       message: "OTP verified successfully"
     });
   } catch (err) {
-    console.error("OTP verification error:", err);
     return res.status(500).json({
       success: false,
       message: "Internal server error"
@@ -379,8 +372,6 @@ const googleAuthCallbackHandler = async (req, res) => {
 
     return res.redirect(`${frontendUrl}/dashboard`);
   } catch (err) {
-    console.error("Google Auth Error:", err);
-
     return res.status(500).json({
       message: err.message || "Internal server error",
     });

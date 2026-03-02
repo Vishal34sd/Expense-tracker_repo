@@ -11,26 +11,21 @@ import { sendEmail } from "../utils/nodeMailerConfig.js";
       return res.status(400).json({ success: false, message: "Email is required" });
     }
 
-    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    
     const otp = otpGenerator();
 
-    // Save OTP and expiry time to DB
     user.otp = otp;
-    user.expiresIn = Date.now() + 5 * 60 * 1000; // 5 min
+    user.expiresIn = Date.now() + 5 * 60 * 1000;
     await user.save();
 
-    
     await sendEmail(email, otp);
 
     res.status(200).json({ success: true, message: "OTP resent successfully" });
   } catch (error) {
-    console.error("Error resending OTP:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

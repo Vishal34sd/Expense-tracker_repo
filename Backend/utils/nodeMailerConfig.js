@@ -9,8 +9,6 @@ const __dirname = path.dirname(__filename);
 // Load backend .env explicitly so EMAIL_USER / EMAIL_PASS are always available
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
-console.log("[MAIL DEBUG] EMAIL_USER from env:", process.env.EMAIL_USER || "<not set>");
-
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
@@ -20,21 +18,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-
-// Verify transport configuration on startup
-transporter
-  .verify()
-  .then(() => {
-    console.log("[MAIL DEBUG] SMTP connection verified successfully.");
-  })
-  .catch((error) => {
-    console.error("[MAIL DEBUG] SMTP verification failed:", {
-      message: error?.message,
-      code: error?.code,
-      command: error?.command,
-      response: error?.response,
-    });
-  });
 
 const sendEmail = async (email , otp) => { 
   const mailOptions = {
@@ -47,21 +30,9 @@ const sendEmail = async (email , otp) => {
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("[MAIL DEBUG] Email sent successfully", {
-      response: info?.response,
-      messageId: info?.messageId,
-      accepted: info?.accepted,
-      rejected: info?.rejected,
-    });
+    await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error("[MAIL DEBUG] Error sending email", {
-      message: error?.message,
-      code: error?.code,
-      command: error?.command,
-      response: error?.response,
-    });
-    
+    throw error;
   }
 };
 

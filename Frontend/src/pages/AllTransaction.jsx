@@ -25,7 +25,6 @@ const AllTransactions = () => {
       });
       setTransaction(res.data.data);
     } catch (err) {
-      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +62,6 @@ const AllTransactions = () => {
       setTransaction(updatedList);
       setEditId(null); 
     } catch (err) {
-      console.error("Update failed:", err);
     }
   };
 
@@ -75,7 +73,6 @@ const AllTransactions = () => {
       );
       setTransaction(transaction.filter((txn) => txn._id !== item._id));
     } catch (err) {
-      console.error("Delete failed:", err);
     }
   };
 

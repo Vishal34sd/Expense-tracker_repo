@@ -11,7 +11,6 @@ const getAllTransaction = async (req, res) => {
       data: allTransaction
     });
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       success: false,
       message: "Something went wrong"
@@ -32,7 +31,6 @@ const addTransaction = async (req, res) => {
       
     });
     await newTransaction.save();
-    console.log(newTransaction);
 
     res.status(201).json({
       success: true,
@@ -40,7 +38,6 @@ const addTransaction = async (req, res) => {
       data: newTransaction
     });
   } catch (err) {
-    console.log(err);
     res.status(500).json({
       success: false,
       message: "Something went wrong"
@@ -72,7 +69,6 @@ const editTransaction = async (req, res)=>{
 
     }
     catch(err){
-        console.log(err);
         res.status(500).json({
             success : false,
             message : "Something went wrong"
@@ -101,7 +97,6 @@ const deleteTransaction =  async(req, res)=>{
 
   }
   catch(err){
-    console.log(err);
     res.status(500).json({
       success : false ,
       message : "Something went  wrong "
@@ -122,7 +117,10 @@ const recentTransaction = async (req, res)=>{
     })
   }
   catch(err){
-    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong"
+    });
   }
 }
 

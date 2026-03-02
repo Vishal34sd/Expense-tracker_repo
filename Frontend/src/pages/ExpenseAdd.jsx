@@ -25,19 +25,16 @@ const AddExpense = () => {
 
   const formSubmitHandler = async(e)=>{
         e.preventDefault();
-         console.log("Submitting Form:", form);
         try{
           const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/add`, form,
             { withCredentials: true }
           );
-          console.log(form);
           enqueueSnackbar("Entry added successfully.", { variant: "success" });
           navigate("/dashboard");
 
 
         }
         catch(err){
-          console.log(err);
           const message = err?.response?.data?.message || "Could not add entry. Please try again.";
           enqueueSnackbar(message, { variant: "error" });
         }

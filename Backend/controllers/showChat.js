@@ -25,7 +25,6 @@ const showChat = async (req, res) => {
       data,
     });
   } catch (err) {
-    console.error("Error fetching user questions:", err);
     res.status(500).json({
       success: false,
       message: "Internal server error",

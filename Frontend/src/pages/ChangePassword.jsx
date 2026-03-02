@@ -23,7 +23,6 @@ const ChangePassword = () => {
 
     }
     catch(err){
-      console.log(err);
       const message = err?.response?.data?.message || "Could not change password. Please try again.";
       enqueueSnackbar(message, { variant: "error" });
     }

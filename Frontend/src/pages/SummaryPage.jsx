@@ -31,7 +31,6 @@ const ViewSummary = () => {
       setTransactions(data);
       processSummary(data);
     } catch (err) {
-      console.log("Error fetching data:", err);
     } finally {
       setIsLoading(false);
     }
