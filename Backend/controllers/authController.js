@@ -9,7 +9,6 @@ import crypto from "crypto"
 
 const userRegister = async (req, res) => {
   try {
-    console.log("[REGISTER DEBUG] /register called with body:", req.body);
 
     let { username, email, password } = req.body;
 
@@ -26,11 +25,6 @@ const userRegister = async (req, res) => {
     });
 
     if (userExists) {
-      console.log("[REGISTER DEBUG] User already exists", {
-        username,
-        email,
-        existingId: userExists._id,
-      });
       return res.status(400).json({
         success: false,
         message:
@@ -52,7 +46,6 @@ const userRegister = async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    console.log("[REGISTER DEBUG] New user saved", { id: savedUser?._id, email: savedUser?.email });
 
     if (!savedUser) {
       return res.status(400).json({
@@ -84,11 +77,15 @@ const userRegister = async (req, res) => {
       })
     }
 
-    res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      data: savedUser,
-      token: accessToken
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      message: "Login successful",
     });
 
   } catch (err) {
@@ -137,12 +134,16 @@ const userLogin = async (req, res) => {
       })
     }
 
-    return res.status(200).json({
-      success: true,
-      message: "Login successfull",
-      token: accessToken,
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000,
+    });
 
-    })
+    res.status(200).json({
+      message: "Login successful",
+    });
 
   }
   catch (err) {
@@ -275,46 +276,46 @@ export const googleStartAuthHandler = async (req, res) => {
 }
 
 const googleAuthCallbackHandler = async (req, res) => {
-
   const code = req.query.code;
 
   if (!code) {
     return res.status(401).json({
-      message: "Google code is not provided"
-    })
+      message: "Google code is not provided",
+    });
   }
 
   try {
     const client = getGoogleClient();
-
     const { tokens } = await client.getToken(code);
 
     if (!tokens.id_token) {
       return res.status(400).json({
-        message: "No google id_token present"
-      })
+        message: "No google id_token present",
+      });
     }
 
     const ticket = await client.verifyIdToken({
       idToken: tokens.id_token,
-      audience: process.env.GOOGLE_CLIENT_ID
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
+
     const payload = ticket.getPayload();
 
-    const email = payload?.email
-    const emailVerified = payload?.email_verified
+    const email = payload?.email;
+    const emailVerified = payload?.email_verified;
 
     if (!email || !emailVerified) {
       return res.status(400).json({
-        message: "Email is not verified"
-      })
+        message: "Email is not verified",
+      });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    const derivedUsername = (payload?.name && String(payload.name).trim())
-      ? String(payload.name).trim()
-      : normalizedEmail.split("@")[0];
+    const derivedUsername =
+      payload?.name && String(payload.name).trim()
+        ? String(payload.name).trim()
+        : normalizedEmail.split("@")[0];
 
     let user = await User.findOne({ email: normalizedEmail });
 
@@ -327,49 +328,46 @@ const googleAuthCallbackHandler = async (req, res) => {
         email: normalizedEmail,
         password: hashedPassword,
         isEmailVerified: true,
-
-      })
-    }
-    else {
-      if (!user.username) {
-        user.username = derivedUsername;
-      }
-
+      });
+    } else {
+      if (!user.username) user.username = derivedUsername;
       if (!user.password) {
         const randomPassword = crypto.randomBytes(16).toString("hex");
         user.password = await hashPassword(randomPassword);
       }
-
-      if (!user.isEmailVerified) {
-        user.isEmailVerified = true;
-      }
+      if (!user.isEmailVerified) user.isEmailVerified = true;
     }
 
     const accessToken = jwt.sign(
       {
         userId: user._id,
         email: user.email,
-        role: user.role
+        role: user.role,
       },
       process.env.JWT_SECRET_KEY,
       { expiresIn: "30m" }
     );
 
-
     await user.save();
 
-    console.log(accessToken);
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: fasle ,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000,
+    });
 
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    return res.redirect(`${frontendUrl}/dashboard?token=${accessToken}`);
-  }
-  catch (err) {
+    const frontendUrl =
+      process.env.FRONTEND_URL;
+
+    return res.redirect(`${frontendUrl}/dashboard`);
+  } catch (err) {
     console.error("Google Auth Error:", err);
 
     return res.status(500).json({
-      message: err.message || "Internal server error"
+      message: err.message || "Internal server error",
     });
   }
-}
+};
 
 export { userRegister, userLogin, verifyOTP, changePassword, googleAuthCallbackHandler };

@@ -18,6 +18,7 @@ import {
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const UserDashboard = () => {
+  const [token, setToken] = useState(null);
   const [transaction, setTransaction] = useState([]);
   const [recentExpense, setRecentExpense] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,14 +33,21 @@ const UserDashboard = () => {
 
     if (tokenFromUrl && typeof tokenFromUrl === "string") {
       localStorage.setItem("token", tokenFromUrl);
+      setToken(tokenFromUrl);
       navigate("/dashboard", { replace: true });
+    } else {
+      const existingToken = getToken();
+      if (existingToken) {
+        setToken(existingToken);
+      } else {
+        setIsLoading(false);
+      }
     }
   }, [location, navigate]);
 
-  const token = getToken();
   let decodedData = {};
 
-  if (token && typeof token === "string") {
+  if (token) {
     try {
       decodedData = decodeToken(token);
     } catch {
@@ -69,7 +77,6 @@ const UserDashboard = () => {
           .slice(0, 5);
 
         setRecentExpense(expensesOnly);
-
       } catch {
         setError("Could not load dashboard data.");
       } finally {
@@ -78,8 +85,6 @@ const UserDashboard = () => {
     };
 
     if (token) load();
-    else setIsLoading(false);
-
   }, [token]);
 
   const totalEarning = transaction
@@ -119,8 +124,8 @@ const UserDashboard = () => {
       <main className="flex-1 p-6">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">
-              Welcome, {decodedData?.email || "User"}
+            <h1 className="text-3xl font-bold mb-2 ">
+              Welcome, <span className ="text-yellow-300">{decodedData?.username || "User"}</span>
             </h1>
             <p className="text-white/70">Here’s your financial overview</p>
           </div>
@@ -200,7 +205,6 @@ const UserDashboard = () => {
                       className="flex justify-between items-center p-4 hover:bg-purple-800/20 transition text-sm md:text-base"
                     >
                       <div className="flex items-center gap-4 flex-wrap">
-
                         <span className="font-semibold text-white">
                           {expense.note || "Untitled"}
                         </span>
@@ -210,13 +214,16 @@ const UserDashboard = () => {
                         </span>
 
                         <span className="text-white/50">
-                          • {new Date(expense.createdAt).toLocaleDateString("en-IN", {
+                          •{" "}
+                          {new Date(expense.createdAt).toLocaleDateString(
+                            "en-IN",
+                            {
                               day: "numeric",
                               month: "short",
                               year: "numeric",
-                            })}
+                            }
+                          )}
                         </span>
-
                       </div>
 
                       <span className="text-red-400 font-bold">

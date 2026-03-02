@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import dbConnection from "./database/db.js";
 import transactionRoutes from "./routes/transactionRoute.js";
 import authRoutes from "./routes/authRoute.js";
@@ -11,6 +12,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 dbConnection();
+
+app.use(cookieParser());
 
 app.use(cors({
   origin: [

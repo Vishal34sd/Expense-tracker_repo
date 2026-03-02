@@ -13,7 +13,7 @@ import { removeToken } from "../utils/token";
 const SideBar = () => {
   return (
     <aside className="w-64 bg-purple-900/20 backdrop-blur border-r border-purple-500/20 p-6 hidden sm:block">
-      <h2 className="text-2xl font-bold text-white mb-28 text-center">
+      <h2 className="text-2xl font-bold text-white mb-28 text-center font-outfit">
         SmartExpense
       </h2>
 

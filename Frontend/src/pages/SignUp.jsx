@@ -157,7 +157,7 @@ const SignUp = () => {
             alt="google"
             className="w-5 h-5"
           />
-          Sign in with Google
+          Sign-up with Google
         </button>
 
         <p className="mt-6 text-sm text-white/70 text-center">
