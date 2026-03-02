@@ -5,6 +5,19 @@ Built with the **MERN stack (MongoDB, Express, React, Node.js)**, this platform 
 
 ---
 
+## 📸 Project Screenshots
+
+### 🔐 Authentication Page
+![Authentication Page](./images/pic1.png)
+
+### 📊 Interactive Dashboard
+![Interactive Dashboard](./images/pic2.png)
+
+### 🤖 AI Chatbot & Voice Feature
+![AI Chatbot](./images/pic3.png)
+
+---
+
 ## ✨ Key Features
 
 - 🤖 **AI-Powered Chatbot**: Interact with your expense tracker through a friendly chatbot. Ask about your spending, get suggestions, or query specific expenses using natural language.  
