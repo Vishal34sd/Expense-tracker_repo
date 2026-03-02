@@ -79,8 +79,8 @@ const userRegister = async (req, res) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 60 * 60 * 1000,
     });
 
@@ -140,8 +140,8 @@ const userLogin = async (req, res) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 60 * 60 * 1000,
     });
 
@@ -369,8 +369,8 @@ const googleAuthCallbackHandler = async (req, res) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 60 * 60 * 1000,
     });
 
