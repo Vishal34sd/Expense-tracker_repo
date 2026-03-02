@@ -1,5 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   FaHome,
   FaListAlt,
@@ -8,9 +9,24 @@ import {
   FaCog,
   FaSignOutAlt,
 } from "react-icons/fa";
-import { removeToken } from "../utils/token";
 
 const SideBar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/logout`,
+        {},
+        { withCredentials: true }
+      );
+    } catch {
+      
+    }
+    localStorage.removeItem("userInfo");
+    navigate("/");
+  };
+
   return (
     <aside className="w-64 bg-purple-900/20 backdrop-blur border-r border-purple-500/20 p-6 hidden sm:block">
       <h2 className="text-2xl font-bold text-white mb-28 text-center font-outfit">
@@ -58,14 +74,13 @@ const SideBar = () => {
           Change Password
         </Link>
 
-        <Link
-          to="/"
-          onClick={() => removeToken()}
-          className="flex items-center gap-3 text-red-400 hover:text-red-300 transition mt-6"
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 text-red-400 hover:text-red-300 transition mt-6 w-full"
         >
           <FaSignOutAlt />
           Logout
-        </Link>
+        </button>
       </nav>
     </aside>
   );

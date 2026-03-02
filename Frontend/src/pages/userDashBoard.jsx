@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import axios from "axios";
-import { getToken, decodeToken } from "../utils/token";
 import SideBar from "../components/SideBar";
 import {
   FaArrowUp,
@@ -18,57 +17,30 @@ import {
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const UserDashboard = () => {
-  const [token, setToken] = useState(null);
   const [transaction, setTransaction] = useState([]);
   const [recentExpense, setRecentExpense] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isReady, setIsReady] = useState(false);
 
-  const location = useLocation();
   const navigate = useNavigate();
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const tokenFromUrl = params.get("token");
-
-    if (tokenFromUrl && typeof tokenFromUrl === "string") {
-      localStorage.setItem("token", tokenFromUrl);
-      setToken(tokenFromUrl);
-      navigate("/dashboard", { replace: true });
-    } else {
-      const existingToken = getToken();
-      if (existingToken) {
-        setToken(existingToken);
-      } else {
-        setIsLoading(false);
-      }
-    }
-  }, [location, navigate]);
-
-  let decodedData = {};
-
-  if (token) {
-    try {
-      decodedData = decodeToken(token);
-    } catch {
-      decodedData = {};
-    }
-  }
+    setIsReady(true);
+  }, []);
 
   useEffect(() => {
+    if (!isReady) return;
+
     const load = async () => {
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { withCredentials: true }
         );
 
         const allTransactions = res.data.data || [];
-
         setTransaction(allTransactions);
 
         const expensesOnly = allTransactions
@@ -77,15 +49,19 @@ const UserDashboard = () => {
           .slice(0, 5);
 
         setRecentExpense(expensesOnly);
-      } catch {
-        setError("Could not load dashboard data.");
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          navigate("/login");
+        } else {
+          setError("Could not load dashboard data.");
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (token) load();
-  }, [token]);
+    load();
+  }, [isReady, navigate]);
 
   const totalEarning = transaction
     .filter((t) => t.type === "income")
@@ -124,10 +100,15 @@ const UserDashboard = () => {
       <main className="flex-1 p-6">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2 ">
-              Welcome, <span className ="text-yellow-300">{decodedData?.username || "User"}</span>
+            <h1 className="text-3xl font-bold mb-2">
+              Welcome,{" "}
+              <span className="text-yellow-300">
+                {userInfo?.username || "User"}
+              </span>
             </h1>
-            <p className="text-white/70">Here’s your financial overview</p>
+            <p className="text-white/70">
+              Here’s your financial overview
+            </p>
           </div>
 
           <Link to="/ask-chatbot">

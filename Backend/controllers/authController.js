@@ -85,7 +85,11 @@ const userRegister = async (req, res) => {
     });
 
     res.status(200).json({
-      message: "Login successful",
+      message: "Registration successful",
+      user: {
+        username: savedUser.username,
+        email: savedUser.email,
+      }
     });
 
   } catch (err) {
@@ -134,7 +138,7 @@ const userLogin = async (req, res) => {
       })
     }
 
-    res.cookie("accessToken", token, {
+    res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
@@ -143,6 +147,10 @@ const userLogin = async (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
+      user: {
+        username: emailExist.username,
+        email: emailExist.email,
+      }
     });
 
   }
@@ -241,6 +249,15 @@ const changePassword = async (req, res) => {
   })
 
 }
+
+const userLogout = (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+  return res.status(200).json({ success: true, message: "Logged out successfully" });
+};
 
 export const getGoogleClient = () => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -352,7 +369,7 @@ const googleAuthCallbackHandler = async (req, res) => {
 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: fasle ,
+      secure: false,
       sameSite: "lax",
       maxAge: 60 * 60 * 1000,
     });
@@ -370,4 +387,4 @@ const googleAuthCallbackHandler = async (req, res) => {
   }
 };
 
-export { userRegister, userLogin, verifyOTP, changePassword, googleAuthCallbackHandler };
+export { userRegister, userLogin, verifyOTP, changePassword, googleAuthCallbackHandler, userLogout };

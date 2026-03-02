@@ -21,7 +21,8 @@ app.use(cors({
     "https://expense-tracker-repo-3p8w.vercel.app"
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type"],
+  credentials: true
 }));
 
 app.use(express.json());

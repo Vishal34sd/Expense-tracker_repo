@@ -3,7 +3,6 @@ import axios from "axios";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Link } from "react-router-dom";
-import { getToken } from "../utils/token.js";
 import * as XLSX from "xlsx";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -26,7 +25,7 @@ const ViewSummary = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/get`, {
-        headers: { Authorization: `Bearer ${getToken()}` }
+        withCredentials: true
       });
       const data = res.data.data;
       setTransactions(data);

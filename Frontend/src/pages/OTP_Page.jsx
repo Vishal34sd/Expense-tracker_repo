@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getToken } from "../utils/token";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSnackbar } from "notistack";
@@ -23,11 +22,7 @@ const OTP_Page = () => {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/verify-otp`, 
         { otp },
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
+        { withCredentials: true }
       );
       enqueueSnackbar("Email verified successfully!", { variant: "success" });
       navigate("/dashboard");
@@ -74,7 +69,7 @@ const OTP_Page = () => {
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/resend-otp`,
         {},
-        { headers: { Authorization: `Bearer ${getToken()}` } }
+        { withCredentials: true }
       );
 
       

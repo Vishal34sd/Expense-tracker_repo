@@ -3,8 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const authMiddleware = (req, res, next) => {
-    const headerData = req.headers["authorization"];
-    const token = headerData && headerData.split(" ")[1];
+    const token = req.cookies?.accessToken;
 
     if (!token) {
         return res.status(401).json({

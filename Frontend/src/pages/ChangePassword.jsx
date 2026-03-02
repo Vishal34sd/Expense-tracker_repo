@@ -1,6 +1,5 @@
 import React, { useState , useEffect } from "react";
 import axios from "axios";
-import { getToken } from "../utils/token";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 
@@ -17,9 +16,7 @@ const ChangePassword = () => {
     e.preventDefault();
     try{
       const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/v1/changePassword`, {oldPassword, newPassword},{
-        headers : {
-          Authorization : `Bearer ${getToken()}`
-        }
+        withCredentials: true
       });
       enqueueSnackbar("Password changed successfully.", { variant: "success" });
       navigate("/dashboard");

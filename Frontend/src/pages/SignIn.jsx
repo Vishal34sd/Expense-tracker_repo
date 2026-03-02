@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useSnackbar } from "notistack";
-import { storeToken } from "../utils/token";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -21,10 +20,13 @@ const SignIn = () => {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/login`,
-        { email, password }
+        { email, password },
+        { withCredentials: true }
       );
 
-      storeToken(res.data.token);
+      if (res.data.user) {
+        localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+      }
       enqueueSnackbar("Login successful. Welcome back!", {
         variant: "success",
       });
@@ -49,8 +51,6 @@ const SignIn = () => {
     const tokenFromUrl = params.get("token");
 
     if (tokenFromUrl && typeof tokenFromUrl === "string") {
-      storeToken(tokenFromUrl);
-
       enqueueSnackbar("Google login successful", {
         variant: "success",
       });
@@ -106,7 +106,7 @@ const SignIn = () => {
 
           <button
             type="submit"
-            className="w-full h-12 flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-md transition-all duration-300 shadow-lg"
+            className="w-full h-12 flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-md transition-all duration-300 shadow-lg cursor-pointer"
           >
             {showLoader ? (
               <img
@@ -129,7 +129,7 @@ const SignIn = () => {
         <button
           type="button"
           onClick={handleGoogleAuth}
-          className="w-full h-12 bg-white text-black font-semibold rounded-md transition-all duration-300 shadow-lg flex items-center justify-center gap-3 hover:bg-gray-200"
+          className="w-full h-12 bg-white text-black font-semibold rounded-md transition-all duration-300 shadow-lg flex items-center justify-center gap-3 hover:bg-gray-200 cursor-pointer"
         >
           <img
             src="https://www.svgrepo.com/show/475656/google-color.svg"
