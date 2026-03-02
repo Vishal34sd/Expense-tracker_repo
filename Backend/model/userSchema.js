@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     expiresIn: {
         type: Date,
     },
-    isVerified: {
+    isEmailVerified: {
         type: Boolean,
         default: false,
     },

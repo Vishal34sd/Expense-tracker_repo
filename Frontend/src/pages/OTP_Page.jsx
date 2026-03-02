@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getToken } from "../utils/token";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSnackbar } from "notistack";
@@ -23,11 +22,7 @@ const OTP_Page = () => {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/verify-otp`, 
         { otp },
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
+        { withCredentials: true }
       );
       enqueueSnackbar("Email verified successfully!", { variant: "success" });
       navigate("/dashboard");
@@ -38,7 +33,7 @@ const OTP_Page = () => {
     }
   };
 
-  // format seconds to MM:SS
+  
   const formatTime = (secs) => {
     const m = Math.floor(secs / 60);
     const s = secs % 60;
@@ -47,9 +42,9 @@ const OTP_Page = () => {
     return `${mm}:${ss}`;
   };
 
-  // start countdown on mount
+  
   useEffect(() => {
-    // clear any existing interval
+    
     if (intervalRef.current) clearInterval(intervalRef.current);
 
     intervalRef.current = setInterval(() => {
@@ -74,13 +69,13 @@ const OTP_Page = () => {
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/resend-otp`,
         {},
-        { headers: { Authorization: `Bearer ${getToken()}` } }
+        { withCredentials: true }
       );
 
-      // reset timer and states on success
+      
       setSecondsLeft(5 * 60);
       setExpired(false);
-      // restart interval
+    
       if (intervalRef.current) clearInterval(intervalRef.current);
       intervalRef.current = setInterval(() => {
         setSecondsLeft((prev) => {

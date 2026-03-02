@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { getToken, removeToken } from "../utils/token";
 import ReactMarkdown from "react-markdown";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import { useNavigate } from "react-router-dom"; 
@@ -30,11 +29,7 @@ const AskChatbot = () => {
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/ask-chatbot`,
         { userQuestion: trimmed },
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
+        { withCredentials: true }
       );
 
       const replyText = res?.data?.reply ?? "";
@@ -44,7 +39,7 @@ const AskChatbot = () => {
     } catch (err) {
       const status = err?.response?.status;
       if (status === 401 || status === 403) {
-        removeToken();
+        localStorage.removeItem("userInfo");
         setMessages((prev) => [...prev, { role: "assistant", content: "Session expired. Please login again.", ts: Date.now() }]);
         navigate("/login");
         return;

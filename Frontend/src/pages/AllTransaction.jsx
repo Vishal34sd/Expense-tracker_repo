@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { getToken } from "../utils/token";
 
 const AllTransactions = () => {
   const [transaction, setTransaction] = useState([]);
@@ -22,9 +21,7 @@ const AllTransactions = () => {
   const transactionData = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,{
-        headers : {
-          Authorization : `Bearer ${getToken()}`
-        }
+        withCredentials: true
       });
       setTransaction(res.data.data);
     } catch (err) {
@@ -51,9 +48,7 @@ const AllTransactions = () => {
     try {
       const res = await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/edit/${editId}`,  editTransaction , {
-          headers : {
-            Authorization : `Bearer ${getToken()}`
-          }
+          withCredentials: true
         }
        
       );
@@ -76,11 +71,7 @@ const AllTransactions = () => {
   const handleDelete = async (item) => {
     try {
       await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/v1/delete/${item._id}`,
-        {
-          headers : {
-            Authorization : `Bearer ${getToken()}`
-          }
-        }
+        { withCredentials: true }
       );
       setTransaction(transaction.filter((txn) => txn._id !== item._id));
     } catch (err) {
