@@ -22,8 +22,8 @@ Built with the **MERN stack (MongoDB, Express, React, Node.js)**, this platform 
 
 - 🤖 **AI-Powered Chatbot**: Interact with your expense tracker through a friendly chatbot. Ask about your spending, get suggestions, or query specific expenses using natural language.  
 - 🎤 **Voice Query Support**: Use your voice to add or inquire about expenses, making the app hands-free and accessible.  
-- 📄 **Expense Summary Download (PDF)**: Generate detailed expense reports and download them as PDF files for easy record-keeping.  
-- 🔒 **JWT Authentication**: Secure login/signup using JSON Web Tokens to protect your personal data.  
+- 📄 Expense Download (Excel): Generate detailed expense reports and download them as Excel files for easy record-keeping and further analysis.  
+- 🔒 Secure Authentication:JWT-based login/signup with Google OAuth integration for safe and seamless user access. 
 - 📊 **Interactive Dashboard**: Visualize your spending habits with charts and categorized summaries.  
 - ➕ **CRUD Operations**: Add, edit, and delete expenses effortlessly.  
 - 📱 **Responsive UI**: Works seamlessly on both desktop and mobile devices.  
