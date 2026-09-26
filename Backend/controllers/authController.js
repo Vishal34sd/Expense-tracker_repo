@@ -5,6 +5,33 @@ import { OAuth2Client } from "google-auth-library"
 import { hashPassword } from "../utils/hashPassword.js"
 import crypto from "crypto"
 
+export const getAuthCookieOptions = (req) => {
+  const isHttps =
+    req?.secure ||
+    req?.headers?.["x-forwarded-proto"] === "https" ||
+    process.env.NODE_ENV === "production";
+
+  return {
+    httpOnly: true,
+    secure: isHttps,
+    sameSite: isHttps ? "none" : "lax",
+    maxAge: 30 * 60 * 1000, // 30 minutes
+  };
+};
+
+export const getClearCookieOptions = (req) => {
+  const isHttps =
+    req?.secure ||
+    req?.headers?.["x-forwarded-proto"] === "https" ||
+    process.env.NODE_ENV === "production";
+
+  return {
+    httpOnly: true,
+    secure: isHttps,
+    sameSite: isHttps ? "none" : "lax",
+  };
+};
+
 const userRegister = async (req, res) => {
   try {
     let { username, email, password, avatar } = req.body;
@@ -56,13 +83,7 @@ const userRegister = async (req, res) => {
       { expiresIn: "30m" }
     );
 
-    const isProduction = process.env.NODE_ENV === "production";
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
-      maxAge: 60 * 60 * 1000,
-    });
+    res.cookie("accessToken", accessToken, getAuthCookieOptions(req));
 
     return res.status(200).json({
       success: true,
@@ -135,13 +156,7 @@ const userLogin = async (req, res) => {
       { expiresIn: "30m" }
     );
 
-    const isProduction = process.env.NODE_ENV === "production";
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
-      maxAge: 60 * 60 * 1000,
-    });
+    res.cookie("accessToken", accessToken, getAuthCookieOptions(req));
 
     return res.status(200).json({
       success: true,
@@ -229,12 +244,7 @@ const changePassword = async (req, res) => {
 };
 
 const userLogout = (req, res) => {
-  const isProduction = process.env.NODE_ENV === "production";
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-  });
+  res.clearCookie("accessToken", getClearCookieOptions(req));
   return res.status(200).json({ success: true, message: "Logged out successfully" });
 };
 
@@ -339,12 +349,7 @@ const googleAuthCallbackHandler = async (req, res) => {
 
     await user.save();
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 60 * 60 * 1000,
-    });
+    res.cookie("accessToken", accessToken, getAuthCookieOptions(req));
 
     const frontendUrl = (
       process.env.FRONTEND_URL || "https://expense-tracker-repo-3p8w.vercel.app"

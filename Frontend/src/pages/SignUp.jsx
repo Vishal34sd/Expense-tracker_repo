@@ -46,6 +46,18 @@ const SignUp = () => {
 
       if (res.data.user) {
         localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+        const normalizedEmail = email.trim().toLowerCase();
+        try {
+          localStorage.setItem("lastLoginEmail", normalizedEmail);
+          const currentList = JSON.parse(localStorage.getItem("recentEmails") || "[]");
+          const updatedList = [
+            normalizedEmail,
+            ...currentList.filter((e) => e !== normalizedEmail),
+          ].slice(0, 5);
+          localStorage.setItem("recentEmails", JSON.stringify(updatedList));
+        } catch {
+          // ignore
+        }
       }
 
       enqueueSnackbar("Registration successful! Welcome.", {

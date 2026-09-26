@@ -21,7 +21,27 @@ import { FiSun, FiMoon } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
 
 const SignIn = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => {
+    try {
+      return localStorage.getItem("lastLoginEmail") || "";
+    } catch {
+      return "";
+    }
+  });
+  const [recentEmails, setRecentEmails] = useState(() => {
+    try {
+      const list = JSON.parse(localStorage.getItem("recentEmails") || "[]");
+      const last = localStorage.getItem("lastLoginEmail");
+      if (last && !list.includes(last)) {
+        list.unshift(last);
+      }
+      return list;
+    } catch {
+      const last = localStorage.getItem("lastLoginEmail");
+      return last ? [last] : [];
+    }
+  });
+
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
@@ -60,6 +80,20 @@ const SignIn = () => {
 
       if (res.data.user) {
         localStorage.setItem("userInfo", JSON.stringify(res.data.user));
+      }
+
+      // Save email for instant suggestions on next logins
+      const normalizedEmail = email.trim().toLowerCase();
+      try {
+        localStorage.setItem("lastLoginEmail", normalizedEmail);
+        const currentList = JSON.parse(localStorage.getItem("recentEmails") || "[]");
+        const updatedList = [
+          normalizedEmail,
+          ...currentList.filter((e) => e !== normalizedEmail),
+        ].slice(0, 5);
+        localStorage.setItem("recentEmails", JSON.stringify(updatedList));
+      } catch {
+        // ignore storage errors
       }
 
       enqueueSnackbar("Login successful. Welcome back!", {
@@ -220,20 +254,64 @@ const SignIn = () => {
 
             <form className="space-y-4" onSubmit={formHandler}>
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  Email Address
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="login-email" className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Email Address
+                  </label>
+                  {recentEmails.length > 0 && email && (
+                    <button
+                      type="button"
+                      onClick={() => setEmail("")}
+                      className="text-[10px] text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
                 <div className="relative">
                   <FaEnvelope className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs" />
                   <input
+                    id="login-email"
                     type="email"
+                    list="saved-email-suggestions"
+                    autoComplete="email"
                     className="w-full pl-9 pr-4 py-2.5 bg-secondary/30 border border-border/80 rounded-xl text-foreground placeholder-muted-foreground/60 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
+                  {/* HTML5 datalist for native browser auto-suggestions */}
+                  <datalist id="saved-email-suggestions">
+                    {recentEmails.map((item) => (
+                      <option key={item} value={item} />
+                    ))}
+                  </datalist>
                 </div>
+
+                {/* Suggestion pills for previously entered emails */}
+                {recentEmails.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                    <span className="text-[10px] uppercase font-semibold text-muted-foreground/80 tracking-wider">
+                      Recent:
+                    </span>
+                    {recentEmails.slice(0, 3).map((saved) => (
+                      <button
+                        key={saved}
+                        type="button"
+                        onClick={() => setEmail(saved)}
+                        title={`Use ${saved}`}
+                        className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-all cursor-pointer font-medium ${
+                          email === saved
+                            ? "bg-primary/20 text-primary border-primary/40 font-bold"
+                            : "bg-secondary/40 text-foreground/75 border-border/80 hover:bg-primary/10 hover:text-primary hover:border-primary/30"
+                        }`}
+                      >
+                        {saved}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
