@@ -72,6 +72,7 @@ const userRegister = async (req, res) => {
         username: savedUser.username,
         email: savedUser.email,
         avatar: savedUser.avatar || "avatar1",
+        hasPassword: true,
       }
     });
 
@@ -108,6 +109,14 @@ const userLogin = async (req, res) => {
         message: "Email doesn't exist"
       });
     }
+    if (!emailExist.password) {
+      return res.status(400).json({
+        success: false,
+        message: "This account was registered using Google. Please log in with Google, or set a password in your Profile to enable email login.",
+        hasPassword: false,
+      });
+    }
+
     const matchPassword = await bcrypt.compare(password, emailExist.password);
     if (!matchPassword) {
       return res.status(401).json({
@@ -142,6 +151,7 @@ const userLogin = async (req, res) => {
         username: emailExist.username,
         email: emailExist.email,
         avatar: emailExist.avatar || "avatar1",
+        hasPassword: Boolean(emailExist.password),
       }
     });
 
@@ -156,40 +166,67 @@ const userLogin = async (req, res) => {
 
 
 const changePassword = async (req, res) => {
-  const userId = req.userInfo.userId;
-  const { oldPassword, newPassword } = req.body;
-  const userExist = await User.findById(userId);
-  if (!userExist) {
-    return res.status(404).json({
-      success: false,
-      message: "User not exist"
-    })
-  }
+  try {
+    const userId = req.userInfo.userId;
+    const { oldPassword, newPassword } = req.body;
 
-  const comparePassword = await bcrypt.compare(oldPassword, userExist.password);
-  if (!comparePassword) {
-    return res.status(400).json({
-      success: false,
-      message: "Wrong password provided! Please try again ."
-    })
-  }
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(newPassword, salt);
+    if (!newPassword || String(newPassword).trim().length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters long."
+      });
+    }
 
-  userExist.password = hashedPassword;
-  const savedUser = await userExist.save();
-  if (!savedUser) {
-    return res.status(400).json({
-      success: false,
-      message: "Sorry ! something went wrong"
-    })
-  }
-  return res.status(200).json({
-    success: true,
-    message: "Password changed successfully"
-  })
+    const userExist = await User.findById(userId);
+    if (!userExist) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
 
-}
+    // If user already has a password, verify old password
+    if (userExist.password) {
+      if (!oldPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is required."
+        });
+      }
+      const comparePassword = await bcrypt.compare(oldPassword, userExist.password);
+      if (!comparePassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Wrong current password provided! Please try again."
+        });
+      }
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    userExist.password = hashedPassword;
+    const savedUser = await userExist.save();
+    if (!savedUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to save new password"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Password saved successfully",
+      hasPassword: true
+    });
+  } catch (err) {
+    console.error("Error in changePassword:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to update password"
+    });
+  }
+};
 
 const userLogout = (req, res) => {
   const isProduction = process.env.NODE_ENV === "production";
@@ -279,21 +316,14 @@ const googleAuthCallbackHandler = async (req, res) => {
     let user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
-      const randomPassword = crypto.randomBytes(16).toString("hex");
-      const hashedPassword = await hashPassword(randomPassword);
-
       user = await User.create({
         username: derivedUsername,
         email: normalizedEmail,
-        password: hashedPassword,
+        password: null,
         isEmailVerified: true,
       });
     } else {
       if (!user.username) user.username = derivedUsername;
-      if (!user.password) {
-        const randomPassword = crypto.randomBytes(16).toString("hex");
-        user.password = await hashPassword(randomPassword);
-      }
       if (!user.isEmailVerified) user.isEmailVerified = true;
     }
 
@@ -330,7 +360,7 @@ const googleAuthCallbackHandler = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.userInfo.userId).select("-password");
+    const user = await User.findById(req.userInfo.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -345,6 +375,7 @@ const getProfile = async (req, res) => {
         email: user.email,
         avatar: user.avatar || "avatar1",
         createdAt: user.createdAt,
+        hasPassword: Boolean(user.password),
       },
     });
   } catch (err) {
@@ -366,7 +397,7 @@ const updateProfile = async (req, res) => {
       req.userInfo.userId,
       updateData,
       { new: true }
-    ).select("-password");
+    );
 
     if (!updatedUser) {
       return res.status(404).json({
@@ -384,6 +415,7 @@ const updateProfile = async (req, res) => {
         email: updatedUser.email,
         avatar: updatedUser.avatar || "avatar1",
         createdAt: updatedUser.createdAt,
+        hasPassword: Boolean(updatedUser.password),
       },
     });
   } catch (err) {

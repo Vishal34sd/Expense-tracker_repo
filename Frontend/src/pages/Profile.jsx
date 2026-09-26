@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { useSnackbar } from "notistack";
 import {
@@ -12,6 +12,11 @@ import {
   FaEdit,
   FaWallet,
   FaShieldAlt,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaTimes,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import SideBar from "../components/SideBar";
 import { AVATARS, UserAvatar } from "../utils/avatars.jsx";
@@ -30,6 +35,14 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [stats, setStats] = useState({ totalCount: 0, balance: 0 });
+
+  // Set password modal state for users with null password (e.g. Google OAuth)
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSettingPassword, setIsSettingPassword] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -107,13 +120,51 @@ const Profile = () => {
     }
   };
 
+  const handleSetPassword = async (e) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      enqueueSnackbar("Password must be at least 6 characters.", { variant: "warning" });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      enqueueSnackbar("Passwords do not match.", { variant: "warning" });
+      return;
+    }
+
+    setIsSettingPassword(true);
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/changePassword`,
+        { newPassword },
+        { withCredentials: true }
+      );
+
+      const updated = { ...userInfo, hasPassword: true };
+      setUserInfo(updated);
+      localStorage.setItem("userInfo", JSON.stringify(updated));
+      window.dispatchEvent(new Event("userInfoUpdated"));
+
+      enqueueSnackbar("Password created successfully! You can now log in using your email and password.", {
+        variant: "success",
+      });
+      setIsPasswordModalOpen(false);
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Failed to create password.";
+      enqueueSnackbar(msg, { variant: "error" });
+    } finally {
+      setIsSettingPassword(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex transition-colors duration-300">
       <SideBar />
 
       <main className="flex-1 p-4 sm:p-8 max-w-5xl mx-auto overflow-y-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
             <span>Account Center</span>
             <span>•</span>
@@ -126,6 +177,43 @@ const Profile = () => {
             Manage your personal character avatar, display identity, and security settings.
           </p>
         </div>
+
+        {/* Google OAuth No Password Alert Banner */}
+        {userInfo.hasPassword === false && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 sm:p-5 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-200 shadow-lg shadow-amber-500/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          >
+            <div className="flex items-start gap-3.5">
+              <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0 mt-0.5 sm:mt-0">
+                <FaExclamationTriangle className="text-base" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-amber-300">
+                    Create a Password for Email Login
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Google Sign-In
+                  </span>
+                </div>
+                <p className="text-xs text-amber-200/80 mt-1 leading-relaxed">
+                  You registered through Google OAuth and do not have a password set. Create a password so you can also log in directly using your email and password.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsPasswordModalOpen(true)}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/25 transition-all shrink-0 cursor-pointer"
+            >
+              <FaKey className="text-xs" />
+              <span>Set Password Now</span>
+            </button>
+          </motion.div>
+        )}
 
         {/* Profile Card */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -368,19 +456,154 @@ const Profile = () => {
             <div className="mt-8 pt-6 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <FaShieldAlt className="text-primary text-sm" />
-                <span>Account secured with JWT encryption</span>
+                <span>
+                  {userInfo.hasPassword === false
+                    ? "Password not set (Google OAuth login only)"
+                    : "Account secured with JWT encryption & Password"}
+                </span>
               </div>
 
-              <Link
-                to="/changePassword"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary/50 text-foreground hover:bg-secondary text-xs font-semibold border border-border transition"
-              >
-                <FaKey className="text-primary text-xs" />
-                <span>Change Password</span>
-              </Link>
+              {userInfo.hasPassword === false ? (
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 text-xs font-semibold border border-amber-500/40 transition cursor-pointer"
+                >
+                  <FaKey className="text-amber-400 text-xs" />
+                  <span>Set Password</span>
+                </button>
+              ) : (
+                <Link
+                  to="/changePassword"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary/50 text-foreground hover:bg-secondary text-xs font-semibold border border-border transition"
+                >
+                  <FaKey className="text-primary text-xs" />
+                  <span>Change Password</span>
+                </Link>
+              )}
             </div>
           </motion.div>
         </div>
+
+        {/* Set Password Modal */}
+        <AnimatePresence>
+          {isPasswordModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsPasswordModalOpen(false)}
+                className="fixed inset-0 bg-background/80 backdrop-blur-sm"
+              />
+
+              {/* Modal Card */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                className="relative w-full max-w-md bg-card border border-border/90 rounded-3xl p-6 sm:p-8 shadow-2xl z-10"
+              >
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-border/60">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                      <FaKey className="text-sm" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-foreground">
+                        Set Password
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        Enable direct email & password login
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsPasswordModalOpen(false)}
+                    className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary transition cursor-pointer"
+                  >
+                    <FaTimes className="text-sm" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSetPassword} className="space-y-4">
+                  <p className="text-xs text-muted-foreground">
+                    Create a password for <span className="font-semibold text-foreground">{userInfo.email}</span> so you can log in directly with your email without relying only on Google sign-in.
+                  </p>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                      New Password
+                    </label>
+                    <div className="relative">
+                      <FaLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs" />
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="At least 6 characters"
+                        className="w-full pl-9 pr-10 py-2.5 bg-secondary/30 border border-border/80 rounded-2xl text-foreground text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs cursor-pointer"
+                      >
+                        {showNewPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <FaLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs" />
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Re-enter new password"
+                        className="w-full pl-9 pr-10 py-2.5 bg-secondary/30 border border-border/80 rounded-2xl text-foreground text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs cursor-pointer"
+                      >
+                        {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsPasswordModalOpen(false)}
+                      className="flex-1 py-2.5 rounded-2xl border border-border text-muted-foreground hover:text-foreground text-xs font-bold transition cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSettingPassword}
+                      className="flex-1 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold shadow-md shadow-amber-500/25 transition disabled:opacity-50 cursor-pointer"
+                    >
+                      {isSettingPassword ? "Saving..." : "Create Password"}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   );

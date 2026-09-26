@@ -83,20 +83,38 @@ const UserDashboard = () => {
 
     const load = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,
-          { withCredentials: true }
-        );
+        const [res, profileRes] = await Promise.allSettled([
+          axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/get`, {
+            withCredentials: true,
+          }),
+          axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/profile`, {
+            withCredentials: true,
+          }),
+        ]);
 
-        const allTransactions = res.data.data || [];
-        setTransaction(allTransactions);
+        if (profileRes.status === "fulfilled" && profileRes.value.data?.user) {
+          const u = profileRes.value.data.user;
+          setUserInfo(u);
+          localStorage.setItem("userInfo", JSON.stringify(u));
+          window.dispatchEvent(new Event("userInfoUpdated"));
+        }
 
-        const expensesOnly = allTransactions
-          .filter((t) => t.type === "expense")
-          .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
-          .slice(0, 5);
+        if (res.status === "fulfilled") {
+          const allTransactions = res.value.data?.data || [];
+          setTransaction(allTransactions);
 
-        setRecentExpense(expensesOnly);
+          const expensesOnly = allTransactions
+            .filter((t) => t.type === "expense")
+            .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
+            .slice(0, 5);
+
+          setRecentExpense(expensesOnly);
+        } else if (res.reason?.response?.status === 401) {
+          navigate("/login");
+          return;
+        } else {
+          setError("Could not load dashboard data.");
+        }
       } catch (err) {
         if (err?.response?.status === 401) {
           navigate("/login");
