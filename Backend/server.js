@@ -11,26 +11,42 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust reverse proxy (Render, Heroku, Cloudflare) for secure HTTPS cookies
+app.set("trust proxy", 1);
+
 dbConnection();
 
 app.use(cookieParser());
+
+const configuredFrontend = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.replace(/\/$/, "")
+  : null;
 
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
-  "https://expense-tracker-repo-3p8w.vercel.app"
-];
+  "https://expense-tracker-repo-3p8w.vercel.app",
+  configuredFrontend,
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (
-      allowedOrigins.includes(origin) ||
-      /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
-    ) {
-      return callback(null, true);
+
+    try {
+      const parsed = new URL(origin);
+      if (
+        allowedOrigins.includes(origin) ||
+        /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+        parsed.hostname.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
+      }
+    } catch (_e) {
+      if (allowedOrigins.includes(origin)) return callback(null, true);
     }
+
     return callback(new Error("CORS policy violation"), false);
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

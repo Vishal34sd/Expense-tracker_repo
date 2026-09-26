@@ -192,10 +192,11 @@ const changePassword = async (req, res) => {
 }
 
 const userLogout = (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
   res.clearCookie("accessToken", {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
   });
   return res.status(200).json({ success: true, message: "Logged out successfully" });
 };
@@ -315,8 +316,9 @@ const googleAuthCallbackHandler = async (req, res) => {
       maxAge: 60 * 60 * 1000,
     });
 
-    const frontendUrl =
-      process.env.FRONTEND_URL;
+    const frontendUrl = (
+      process.env.FRONTEND_URL || "https://expense-tracker-repo-3p8w.vercel.app"
+    ).replace(/\/$/, "");
 
     return res.redirect(`${frontendUrl}/dashboard`);
   } catch (err) {
