@@ -133,11 +133,11 @@ const Profile = () => {
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md flex flex-col items-center text-center relative overflow-hidden"
+            className="bg-card border border-border/80 rounded-3xl p-4 sm:p-8 shadow-md flex flex-col items-center text-center relative overflow-hidden"
           >
             {/* Glowing avatar ring */}
             <div className="relative mb-4 group cursor-pointer" onClick={() => setIsEditing(true)}>
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 bg-gradient-to-tr from-primary via-chart-2 to-chart-4 shadow-xl">
+              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full p-1 bg-gradient-to-tr from-primary via-chart-2 to-chart-4 shadow-xl">
                 <UserAvatar
                   id={selectedAvatar}
                   className="w-full h-full bg-card"
@@ -145,7 +145,7 @@ const Profile = () => {
               </div>
               <button
                 type="button"
-                className="absolute bottom-1 right-1 p-2.5 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform"
+                className="absolute bottom-1 right-1 p-2 sm:p-2.5 rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-110 transition-transform"
                 title="Change Avatar"
               >
                 <FaEdit className="text-xs" />
@@ -186,10 +186,10 @@ const Profile = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="lg:col-span-2 bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md flex flex-col justify-between"
+            className="lg:col-span-2 bg-card border border-border/80 rounded-3xl p-4 sm:p-8 shadow-md flex flex-col justify-between"
           >
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-border/60 mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/60 mb-6">
                 <div>
                   <h3 className="text-lg font-bold text-foreground">
                     Profile Information
@@ -201,7 +201,7 @@ const Profile = () => {
                 {!isEditing && (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-secondary text-secondary-foreground hover:bg-accent text-xs font-bold border border-border transition-all"
+                    className="self-start sm:self-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-secondary text-secondary-foreground hover:bg-accent text-xs font-bold border border-border transition-all"
                   >
                     <FaEdit />
                     <span>Edit Profile</span>

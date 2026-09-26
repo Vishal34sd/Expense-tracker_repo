@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Line, Doughnut } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
 import axios from "axios";
 import SideBar from "../components/SideBar";
 import {
@@ -12,14 +23,23 @@ import {
   FaList,
   FaClock,
   FaChartPie,
-  FaRobot,
-  FaPlus,
+  FaChartLine,
 } from "react-icons/fa";
 import { FiSun, FiMoon } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
 import { UserAvatar } from "../utils/avatars.jsx";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 const UserDashboard = () => {
   const [transaction, setTransaction] = useState([]);
@@ -101,7 +121,7 @@ const UserDashboard = () => {
 
   const availableBalance = totalEarning - totalSpent;
 
-  // Chart data calculation
+  // 1. Expense Category Breakdown for Donut Chart
   const expenseTransactions = transaction.filter((t) => t.type === "expense");
   const categories = [...new Set(expenseTransactions.map((t) => t.category || "General"))];
   const categoryTotals = categories.map((cat) =>
@@ -128,29 +148,34 @@ const UserDashboard = () => {
         "rgb(185, 70, 66)",
       ];
 
-  const pieData = {
+  const donutData = {
     labels: categories.length > 0 ? categories : ["No expenses"],
     datasets: [
       {
         label: "Expense Amount",
         data: categoryTotals.length > 0 ? categoryTotals : [0],
         backgroundColor: pieColors.slice(0, Math.max(categories.length, 1)),
-        borderColor: isDark ? "rgb(51, 84, 140)" : "rgb(187, 207, 239)",
+        borderColor: isDark ? "rgb(20, 35, 60)" : "rgb(255, 255, 255)",
         borderWidth: 2,
+        hoverOffset: 6,
       },
     ],
   };
 
-  const chartOptions = {
+  const donutOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    cutout: "68%",
     plugins: {
       legend: {
         position: "bottom",
         labels: {
           color: isDark ? "rgb(231, 239, 252)" : "rgb(28, 34, 43)",
-          font: { family: "Manrope", size: 12 },
-          boxWidth: 14,
+          font: { family: "Manrope", size: 11, weight: "500" },
+          boxWidth: 10,
+          boxHeight: 10,
+          usePointStyle: true,
+          pointStyle: "circle",
         },
       },
       tooltip: {
@@ -159,6 +184,147 @@ const UserDashboard = () => {
         bodyColor: isDark ? "rgb(231, 239, 252)" : "rgb(28, 34, 43)",
         borderColor: isDark ? "rgb(51, 84, 140)" : "rgb(187, 207, 239)",
         borderWidth: 1,
+        padding: 10,
+        cornerRadius: 12,
+        callbacks: {
+          label: (context) => ` ${context.label}: ₹${Number(context.raw || 0).toLocaleString("en-IN")}`,
+        },
+      },
+    },
+  };
+
+  // 2. Chronological Income vs Expense Area/Line Chart
+  const sortedTxns = [...transaction].sort(
+    (a, b) => new Date(a.createdAt || a.date || 0) - new Date(b.createdAt || b.date || 0)
+  );
+
+  const dateMap = {};
+  sortedTxns.forEach((txn) => {
+    const d = new Date(txn.createdAt || txn.date || Date.now());
+    const dateKey = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    if (!dateMap[dateKey]) {
+      dateMap[dateKey] = { income: 0, expense: 0 };
+    }
+    const amt = Number(txn.amount || 0);
+    if (txn.type === "income") {
+      dateMap[dateKey].income += amt;
+    } else {
+      dateMap[dateKey].expense += amt;
+    }
+  });
+
+  const chartLabels = Object.keys(dateMap).slice(-7);
+  const incomeData = chartLabels.map((k) => dateMap[k].income);
+  const expenseData = chartLabels.map((k) => dateMap[k].expense);
+
+  const finalLabels =
+    chartLabels.length === 1
+      ? ["Start", chartLabels[0]]
+      : chartLabels.length > 0
+      ? chartLabels
+      : ["No logs"];
+  const finalIncome =
+    chartLabels.length === 1
+      ? [0, incomeData[0]]
+      : incomeData.length > 0
+      ? incomeData
+      : [0];
+  const finalExpense =
+    chartLabels.length === 1
+      ? [0, expenseData[0]]
+      : expenseData.length > 0
+      ? expenseData
+      : [0];
+
+  const areaChartData = {
+    labels: finalLabels,
+    datasets: [
+      {
+        label: "Income",
+        data: finalIncome,
+        borderColor: isDark ? "rgb(52, 211, 153)" : "rgb(16, 185, 129)",
+        backgroundColor: isDark
+          ? "rgba(52, 211, 153, 0.15)"
+          : "rgba(16, 185, 129, 0.15)",
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3.5,
+        pointHoverRadius: 6,
+        pointBackgroundColor: isDark ? "rgb(52, 211, 153)" : "rgb(16, 185, 129)",
+        pointBorderColor: isDark ? "rgb(10, 20, 36)" : "rgb(255, 255, 255)",
+        pointBorderWidth: 2,
+      },
+      {
+        label: "Expense",
+        data: finalExpense,
+        borderColor: isDark ? "rgb(248, 113, 113)" : "rgb(239, 68, 68)",
+        backgroundColor: isDark
+          ? "rgba(248, 113, 113, 0.15)"
+          : "rgba(239, 68, 68, 0.15)",
+        fill: true,
+        tension: 0.4,
+        pointRadius: 3.5,
+        pointHoverRadius: 6,
+        pointBackgroundColor: isDark ? "rgb(248, 113, 113)" : "rgb(239, 68, 68)",
+        pointBorderColor: isDark ? "rgb(10, 20, 36)" : "rgb(255, 255, 255)",
+        pointBorderWidth: 2,
+      },
+    ],
+  };
+
+  const areaChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        position: "top",
+        align: "end",
+        labels: {
+          color: isDark ? "rgb(231, 239, 252)" : "rgb(28, 34, 43)",
+          font: { family: "Manrope", size: 11, weight: "600" },
+          boxWidth: 10,
+          boxHeight: 10,
+          usePointStyle: true,
+          pointStyle: "circle",
+        },
+      },
+      tooltip: {
+        backgroundColor: isDark ? "rgb(25, 50, 91)" : "rgb(252, 250, 246)",
+        titleColor: isDark ? "rgb(231, 239, 252)" : "rgb(28, 34, 43)",
+        bodyColor: isDark ? "rgb(231, 239, 252)" : "rgb(28, 34, 43)",
+        borderColor: isDark ? "rgb(51, 84, 140)" : "rgb(187, 207, 239)",
+        borderWidth: 1,
+        padding: 10,
+        cornerRadius: 12,
+        callbacks: {
+          label: (context) =>
+            ` ${context.dataset.label}: ₹${Number(context.raw || 0).toLocaleString("en-IN")}`,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: isDark ? "rgb(187, 207, 239)" : "rgb(78, 114, 172)",
+          font: { family: "Manrope", size: 11 },
+        },
+      },
+      y: {
+        grid: {
+          color: isDark ? "rgba(45, 71, 114, 0.25)" : "rgba(187, 207, 239, 0.3)",
+        },
+        ticks: {
+          color: isDark ? "rgb(187, 207, 239)" : "rgb(78, 114, 172)",
+          font: { family: "Manrope", size: 11 },
+          callback: (val) => `₹${val >= 1000 ? (val / 1000).toFixed(0) + "k" : val}`,
+        },
       },
     },
   };
@@ -172,65 +338,31 @@ const UserDashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8"
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
             <Link to="/profile" title="View & Edit Profile" className="relative group shrink-0">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full p-1 bg-gradient-to-tr from-primary via-chart-2 to-chart-4 group-hover:scale-105 transition-transform shadow-md">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full p-1 bg-gradient-to-tr from-primary via-chart-2 to-chart-4 group-hover:scale-105 transition-transform shadow-md">
                 <UserAvatar id={userInfo?.avatar || "avatar1"} className="w-full h-full bg-card" />
               </div>
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-background" />
+              <span className="absolute bottom-0 right-0 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-emerald-500 ring-2 ring-background" />
             </Link>
-            <div>
-              <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
-                <span>Financial Overview</span>
+            <div className="min-w-0 flex-1">
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-primary mb-0.5">
+                <span>Overview</span>
                 <span>•</span>
-                <span className="text-muted-foreground">{new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}</span>
+                <span className="text-muted-foreground">{new Date().toLocaleDateString("en-IN", { month: "short", year: "numeric" })}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-foreground truncate">
                 Welcome back,{" "}
                 <span className="text-primary font-serif italic">
                   {userInfo?.username || "Friend"}
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                Here is your active financial balance and recent transactions.
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                Active financial balance & recent logs
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            {/* Theme Toggle for mobile or quick access */}
-            <button
-              onClick={toggleTheme}
-              type="button"
-              aria-label="Toggle theme"
-              className="sm:hidden p-2.5 rounded-full bg-secondary text-secondary-foreground border border-border"
-            >
-              {isDark ? <FiSun className="text-amber-300" /> : <FiMoon className="text-primary" />}
-            </button>
-
-            <Link to="/add" className="flex-1 sm:flex-initial">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center justify-center gap-2 bg-secondary text-secondary-foreground hover:bg-accent border border-border px-4 py-2.5 rounded-2xl font-semibold text-sm transition-all shadow-xs"
-              >
-                <FaPlus className="text-xs text-primary" />
-                <span>Add Entry</span>
-              </motion.button>
-            </Link>
-
-            <Link to="/ask-chatbot" className="flex-1 sm:flex-initial">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-5 py-2.5 rounded-2xl font-semibold text-sm transition-all shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/35"
-              >
-                <FaRobot className="text-sm animate-bounce" />
-                <span>AI Co-Pilot</span>
-              </motion.button>
-            </Link>
           </div>
         </motion.div>
 
@@ -351,14 +483,50 @@ const UserDashboard = () => {
               </motion.div>
             </div>
 
-            {/* Visuals & Ledger Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-              {/* Chart Card (3 cols) */}
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+              {/* Income vs Expense Area/Line Chart - Visible on both Mobile & Desktop */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
-                className="lg:col-span-3 bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md flex flex-col"
+                className="col-span-1 lg:col-span-7 bg-card border border-border/80 rounded-3xl p-4 sm:p-6 md:p-8 shadow-md flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between mb-4 pb-4 border-b border-border/60">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                      <FaChartLine className="text-base" />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold text-foreground">Income vs Expense</h3>
+                      <p className="text-xs text-muted-foreground">Cash flow trends over time</p>
+                    </div>
+                  </div>
+                  <Link
+                    to="/summary"
+                    className="text-xs text-primary hover:underline font-semibold"
+                  >
+                    Summary →
+                  </Link>
+                </div>
+
+                {transaction.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center text-center py-12 text-muted-foreground text-sm">
+                    No transactions recorded yet. Add your first income or expense to see the trend.
+                  </div>
+                ) : (
+                  <div className="flex-1 w-full min-h-[240px] sm:min-h-[280px] md:min-h-[310px] flex items-center justify-center py-2">
+                    <Line data={areaChartData} options={areaChartOptions} />
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Expense Category Donut Chart - Web/Desktop only (Hidden on Mobile) */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="hidden lg:flex lg:col-span-5 bg-card border border-border/80 rounded-3xl p-6 md:p-8 shadow-md flex-col justify-between"
               >
                 <div className="flex items-center justify-between mb-4 pb-4 border-b border-border/60">
                   <div className="flex items-center gap-3">
@@ -366,97 +534,92 @@ const UserDashboard = () => {
                       <FaChartPie className="text-base" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-foreground">Expense Distribution</h3>
-                      <p className="text-xs text-muted-foreground">Category-wise breakdown of expenses</p>
+                      <h3 className="text-base sm:text-lg font-bold text-foreground">Expense Breakdown</h3>
+                      <p className="text-xs text-muted-foreground">Category-wise expenditure</p>
                     </div>
                   </div>
                   <Link
                     to="/summary"
                     className="text-xs text-primary hover:underline font-semibold"
                   >
-                    Detailed Report →
+                    Report →
                   </Link>
                 </div>
 
-                {transaction.length === 0 ? (
+                {expenseTransactions.length === 0 ? (
                   <div className="flex-1 flex items-center justify-center text-center py-12 text-muted-foreground text-sm">
-                    No transactions recorded yet. Add your first expense to see live visual breakdown.
+                    No expense records found to generate category distribution.
                   </div>
                 ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[300px] my-auto py-2">
-                    <div className="w-full max-w-[340px] sm:max-w-[380px] h-[280px] sm:h-[320px] flex items-center justify-center">
-                      <Pie data={pieData} options={chartOptions} />
+                  <div className="flex-1 flex flex-col items-center justify-center w-full min-h-[260px] py-2">
+                    <div className="w-full max-w-[280px] h-[260px] flex items-center justify-center">
+                      <Doughnut data={donutData} options={donutOptions} />
                     </div>
                   </div>
                 )}
               </motion.div>
-
-              {/* Recent Expenses (2 cols) */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="lg:col-span-2 bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/60">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-chart-2/10 text-chart-2 flex items-center justify-center">
-                        <FaClock className="text-base" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-foreground">Recent Expenses</h3>
-                        <p className="text-xs text-muted-foreground">Last 5 outgoing payments</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {recentExpense.length === 0 ? (
-                    <div className="text-center py-10 text-muted-foreground text-sm">
-                      No expense entries found.
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {recentExpense.map((expense, index) => (
-                        <div
-                          key={index}
-                          className="flex justify-between items-center p-3 rounded-2xl bg-secondary/30 border border-border/50 hover:border-primary/40 hover:bg-secondary/60 transition-all text-xs sm:text-sm"
-                        >
-                          <div className="flex flex-col gap-0.5 truncate pr-2">
-                            <span className="font-bold text-foreground truncate">
-                              {expense.note || expense.category || "Untitled Expense"}
-                            </span>
-                            <span className="text-[11px] text-muted-foreground">
-                              {expense.category} •{" "}
-                              {new Date(expense.createdAt || expense.date || Date.now()).toLocaleDateString(
-                                "en-IN",
-                                {
-                                  day: "numeric",
-                                  month: "short",
-                                }
-                              )}
-                            </span>
-                          </div>
-
-                          <span className="text-destructive font-extrabold shrink-0 text-sm">
-                            -₹ {expense.amount}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-border/60 text-center">
-                  <Link
-                    to="/addTransaction"
-                    className="text-xs font-semibold text-primary hover:underline"
-                  >
-                    View and edit all transactions →
-                  </Link>
-                </div>
-              </motion.div>
             </div>
+
+            {/* Recent Expenses Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35 }}
+              className="mt-6 sm:mt-8 bg-card border border-border/80 rounded-3xl p-4 sm:p-6 md:p-8 shadow-md"
+            >
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/60">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-chart-2/10 text-chart-2 flex items-center justify-center">
+                    <FaClock className="text-base" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-foreground">Recent Expenses</h3>
+                    <p className="text-xs text-muted-foreground">Latest outgoing transactions</p>
+                  </div>
+                </div>
+                <Link
+                  to="/addTransaction"
+                  className="text-xs text-primary font-semibold hover:underline"
+                >
+                  View full ledger →
+                </Link>
+              </div>
+
+              {recentExpense.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground text-sm">
+                  No recent expenses found.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {recentExpense.map((expense, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center p-3.5 rounded-2xl bg-secondary/30 border border-border/50 hover:border-primary/40 hover:bg-secondary/60 transition-all text-xs sm:text-sm"
+                    >
+                      <div className="flex flex-col gap-0.5 truncate pr-2">
+                        <span className="font-bold text-foreground truncate">
+                          {expense.note || expense.category || "Untitled Expense"}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground">
+                          {expense.category} •{" "}
+                          {new Date(expense.createdAt || expense.date || Date.now()).toLocaleDateString(
+                            "en-IN",
+                            {
+                              day: "numeric",
+                              month: "short",
+                            }
+                          )}
+                        </span>
+                      </div>
+
+                      <span className="text-destructive font-extrabold shrink-0 text-sm">
+                        -₹ {Number(expense.amount || 0).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
           </>
         )}
       </main>

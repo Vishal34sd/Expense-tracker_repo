@@ -221,14 +221,14 @@ export default function LandingPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.65 }}
-              className="mt-10 flex items-center gap-6 text-xs text-muted-foreground"
+              className="mt-8 sm:mt-10 flex flex-wrap justify-center md:justify-start items-center gap-3 sm:gap-6 text-xs text-muted-foreground"
             >
-              <div className="flex items-center gap-2">
-                <FaShieldAlt className="text-primary text-sm" />
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <FaShieldAlt className="text-primary text-sm shrink-0" />
                 <span>Zero telemetry tracking</span>
               </div>
-              <div className="flex items-center gap-2">
-                <FaChartLine className="text-emerald-500 text-sm" />
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <FaChartLine className="text-emerald-500 text-sm shrink-0" />
                 <span>Real-time budget analysis</span>
               </div>
             </motion.div>
