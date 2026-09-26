@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Link } from "react-router-dom";
 import * as XLSX from "xlsx";
+import SideBar from "../components/SideBar";
+import {
+  FaChartPie,
+  FaFileExcel,
+  FaLightbulb,
+  FaExclamationTriangle,
+  FaCheckCircle,
+  FaMoneyBillWave,
+  FaPlus,
+} from "react-icons/fa";
+import { useTheme } from "../context/ThemeContext";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ViewSummary = () => {
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [budget, setBudget] = useState(10000);
+  const [budget, setBudget] = useState(15000);
+  const [isEditingBudget, setIsEditingBudget] = useState(false);
+  const [tempBudget, setTempBudget] = useState("15000");
+
   const [totalSpent, setTotalSpent] = useState(0);
   const [percentSpent, setPercentSpent] = useState(0);
   const [mostSpentCategory, setMostSpentCategory] = useState(["N/A", 0]);
@@ -18,202 +33,423 @@ const ViewSummary = () => {
   const [categoryData, setCategoryData] = useState({});
   const [pieData, setPieData] = useState({});
 
+  const { isDark } = useTheme();
+
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/get`, {
-        withCredentials: true
-      });
-      const data = res.data.data;
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/get`,
+        { withCredentials: true }
+      );
+      const data = res.data.data || [];
       setTransactions(data);
-      processSummary(data);
+      processSummary(data, budget);
     } catch (err) {
+      // Error fetching
     } finally {
       setIsLoading(false);
     }
   };
 
-  const processSummary = (data) => {
-    const expenseTxns = data.filter(txn => txn.type === "expense");
-    const spent = expenseTxns.reduce((acc, txn) => acc + txn.amount, 0);
+  const processSummary = (data, currentBudget) => {
+    const expenseTxns = data.filter((txn) => txn.type === "expense");
+    const spent = expenseTxns.reduce((acc, txn) => acc + Number(txn.amount || 0), 0);
     setTotalSpent(spent);
-    setPercentSpent(((spent / budget) * 100).toFixed(1));
-    setAverageExpense(expenseTxns.length > 0 ? (spent / expenseTxns.length).toFixed(2) : 0);
+
+    const b = Number(currentBudget) || 1;
+    setPercentSpent(((spent / b) * 100).toFixed(1));
+    setAverageExpense(
+      expenseTxns.length > 0 ? (spent / expenseTxns.length).toFixed(2) : 0
+    );
 
     const categoryTotals = {};
-    expenseTxns.forEach(txn => {
-      const cat = txn.category.toLowerCase();
-      categoryTotals[cat] = (categoryTotals[cat] || 0) + txn.amount;
+    expenseTxns.forEach((txn) => {
+      const cat = (txn.category || "General").trim().toLowerCase();
+      categoryTotals[cat] = (categoryTotals[cat] || 0) + Number(txn.amount || 0);
     });
     setCategoryData(categoryTotals);
 
-    const maxCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0];
+    const maxCategory = Object.entries(categoryTotals).sort(
+      (a, b) => b[1] - a[1]
+    )[0];
     setMostSpentCategory(maxCategory || ["N/A", 0]);
 
     const labels = Object.keys(categoryTotals);
     const values = Object.values(categoryTotals);
-    const colors = ["#f87171", "#60a5fa", "#34d399", "#fbbf24", "#a78bfa", "#f472b6"];
+    const colors = isDark
+      ? [
+          "rgb(92, 179, 255)",
+          "rgb(81, 151, 198)",
+          "rgb(187, 207, 239)",
+          "rgb(70, 113, 183)",
+          "rgb(211, 223, 243)",
+          "rgb(202, 85, 81)",
+        ]
+      : [
+          "rgb(0, 90, 233)",
+          "rgb(96, 167, 214)",
+          "rgb(187, 207, 239)",
+          "rgb(11, 65, 150)",
+          "rgb(88, 116, 234)",
+          "rgb(185, 70, 66)",
+        ];
+
     setPieData({
-      labels: labels,
-      datasets: [{ data: values, backgroundColor: colors.slice(0, labels.length), borderWidth: 1 }]
+      labels: labels.length > 0 ? labels : ["No data"],
+      datasets: [
+        {
+          data: values.length > 0 ? values : [0],
+          backgroundColor: colors.slice(0, Math.max(labels.length, 1)),
+          borderColor: isDark ? "rgb(51, 84, 140)" : "rgb(187, 207, 239)",
+          borderWidth: 2,
+        },
+      ],
     });
   };
 
- const excelData = transactions.map((expense) => ({
-  "Expense ID": expense._id,
-  "Expense Name": expense.category,
-  "Amount": expense.amount,
-  "Expense Type": expense.type,
-}));
+  const handleBudgetSave = () => {
+    const newB = Number(tempBudget) || 10000;
+    setBudget(newB);
+    setIsEditingBudget(false);
+    processSummary(transactions, newB);
+  };
 
-const exportToExcel = () => {
-  const worksheet = XLSX.utils.json_to_sheet(excelData);
+  const exportToExcel = () => {
+    const excelData = transactions.map((expense) => ({
+      "Record ID": expense._id,
+      Category: expense.category,
+      Type: expense.type,
+      "Amount (₹)": expense.amount,
+      Note: expense.note || "",
+      Date: expense.createdAt || expense.date || "",
+    }));
 
-  worksheet["!cols"] = [
-    { wch: 30 },
-    { wch: 30 },
-    { wch: 15 },
-    { wch: 20 },
-  ];
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    worksheet["!cols"] = [
+      { wch: 25 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 25 },
+      { wch: 20 },
+    ];
 
-  Object.keys(worksheet).forEach((cell) => {
-    if (cell.startsWith("!")) return;
-    worksheet[cell].s = {
-      alignment: {
-        horizontal: "center",
-        vertical: "center",
-        wrapText: true,
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Expenses");
+    XLSX.writeFile(workbook, "SmartExpense_Financial_Report.xlsx");
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: {
+          color: isDark ? "rgb(231, 239, 252)" : "rgb(28, 34, 43)",
+          font: { family: "Manrope", size: 12 },
+          boxWidth: 14,
+        },
       },
-    };
-  });
-
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Expenses");
-
-  XLSX.writeFile(workbook, "Expense_Report.xlsx");
-};
-
-
-
-
+    },
+  };
 
   return (
-    <div className="min-h-screen py-10 px-6 md:px-20 bg-gradient-to-br from-[#0b0617] via-[#120824] to-black text-white">
-      <div className="p-6 rounded-2xl shadow-xl max-w-6xl mx-auto bg-purple-900/20 backdrop-blur border border-purple-500/20">
-        <h2 className="text-3xl font-bold mb-6 text-center text-white">Expense Summary</h2>
+    <div className="min-h-screen bg-background text-foreground flex transition-colors duration-300">
+      <SideBar />
+
+      <main className="flex-1 p-4 sm:p-8 max-w-7xl mx-auto overflow-y-auto">
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div>
+            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary mb-1">
+              <span>Analytics & Audit</span>
+              <span>•</span>
+              <span className="text-muted-foreground">Monthly Digest</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              Expense Summary
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Deep dive into budget utilization, category weightage, and spending habits.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={exportToExcel}
+              disabled={transactions.length === 0}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20 transition-all disabled:opacity-50"
+            >
+              <FaFileExcel className="text-emerald-300" />
+              <span>Export Excel</span>
+            </motion.button>
+          </div>
+        </div>
 
         {isLoading ? (
-          <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20 text-white/80">
-            Loading summary…
+          <div className="bg-card border border-border rounded-3xl p-8 text-center text-muted-foreground animate-pulse">
+            Analyzing transaction statistics…
           </div>
         ) : transactions.length === 0 ? (
-          <div className="p-8 rounded-xl bg-purple-900/20 border border-purple-500/20 text-center">
-            <h3 className="text-2xl font-bold text-white">No summary present</h3>
-            <p className="text-white/70 mt-2">No expense data available.</p>
-            <p className="text-white/70 mt-2">Add your first expense to generate a summary.</p>
-
-            <div className="mt-6">
-              <Link
-                to="/add"
-                className="inline-block px-5 py-3 rounded-2xl font-bold bg-purple-600 hover:bg-purple-700 text-white transition"
-              >
-                Add New Expense
-              </Link>
+          <div className="bg-card border border-border/80 rounded-3xl p-10 text-center shadow-md">
+            <div className="w-14 h-14 rounded-2xl bg-secondary mx-auto flex items-center justify-center text-primary text-xl mb-4">
+              <FaChartPie />
             </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">
+              No summary data available
+            </h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+              Add your first few transactions to unlock visual trends, budget thresholds, and insights.
+            </p>
+            <Link
+              to="/add"
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 transition-all"
+            >
+              <FaPlus className="text-xs" />
+              <span>Record Expense</span>
+            </Link>
           </div>
         ) : (
           <>
-            <div className="flex justify-end mb-6">
-              <button
-              onClick={exportToExcel}
-                className="px-4 py-2 rounded-3xl font-bold bg-purple-600 hover:bg-purple-700 text-white transition"
+            {/* Top Stat Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+              {/* Monthly Budget Card */}
+              <motion.div
+                whileHover={{ y: -3 }}
+                className="bg-card border border-border/80 rounded-3xl p-6 shadow-md"
               >
-                Download Expense Report
-              </button>
-            </div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Monthly Budget
+                  </span>
+                  <button
+                    onClick={() => setIsEditingBudget(!isEditingBudget)}
+                    className="text-xs text-primary font-semibold hover:underline"
+                  >
+                    {isEditingBudget ? "Cancel" : "Change"}
+                  </button>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-              <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-lg font-semibold mb-2 text-white">Monthly Budget</h3>
-                <p>Budget: ₹{budget}</p>
-                <p>Spent: ₹{totalSpent}</p>
-                <p className="mt-1 font-bold text-green-400">{percentSpent}% used</p>
-              </div>
+                {isEditingBudget ? (
+                  <div className="flex gap-2 my-2">
+                    <input
+                      type="number"
+                      value={tempBudget}
+                      onChange={(e) => setTempBudget(e.target.value)}
+                      className="w-full px-3 py-1.5 rounded-xl bg-secondary border border-border text-foreground text-sm font-bold"
+                    />
+                    <button
+                      onClick={handleBudgetSave}
+                      className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold"
+                    >
+                      Save
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-2xl sm:text-3xl font-extrabold text-foreground">
+                    ₹ {Number(budget).toLocaleString("en-IN")}
+                  </div>
+                )}
 
-              <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-lg font-semibold mb-2 text-white">Most Spent Category</h3>
-                <p>Category: <span className="capitalize">{mostSpentCategory[0]}</span></p>
-                <p>Amount: ₹{mostSpentCategory[1]}</p>
-              </div>
+                <div className="mt-4">
+                  <div className="flex justify-between text-xs mb-1.5 text-muted-foreground">
+                    <span>Spent: ₹{totalSpent.toLocaleString("en-IN")}</span>
+                    <span className={`font-bold ${percentSpent > 100 ? "text-destructive" : "text-primary"}`}>
+                      {percentSpent}%
+                    </span>
+                  </div>
+                  <div className="w-full h-2.5 rounded-full bg-secondary overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(percentSpent, 100)}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className={`h-full rounded-full ${
+                        percentSpent > 100
+                          ? "bg-destructive"
+                          : percentSpent > 75
+                          ? "bg-amber-500"
+                          : "bg-primary"
+                      }`}
+                    />
+                  </div>
+                </div>
+              </motion.div>
 
-              <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-lg font-semibold mb-2 text-white">Average Per Transaction</h3>
-                <p>₹{averageExpense}</p>
-                <p className="text-sm text-white/60">
-                  Across {transactions.filter(t => t.type === "expense").length} expenses
+              {/* Highest Category */}
+              <motion.div
+                whileHover={{ y: -3 }}
+                className="bg-card border border-border/80 rounded-3xl p-6 shadow-md"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Highest Category
+                  </span>
+                  <div className="w-9 h-9 rounded-xl bg-destructive/10 text-destructive flex items-center justify-center text-sm">
+                    <FaExclamationTriangle />
+                  </div>
+                </div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-foreground capitalize">
+                  {mostSpentCategory[0]}
+                </div>
+                <p className="text-sm font-semibold text-destructive mt-3">
+                  ₹ {Number(mostSpentCategory[1]).toLocaleString("en-IN")} spent
                 </p>
-              </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Dominates your discretionary spending
+                </p>
+              </motion.div>
+
+              {/* Average Transaction */}
+              <motion.div
+                whileHover={{ y: -3 }}
+                className="bg-card border border-border/80 rounded-3xl p-6 shadow-md"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Average / Expense
+                  </span>
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-sm">
+                    <FaMoneyBillWave />
+                  </div>
+                </div>
+                <div className="text-2xl sm:text-3xl font-extrabold text-foreground">
+                  ₹ {averageExpense}
+                </div>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Across {transactions.filter((t) => t.type === "expense").length} recorded expenses
+                </p>
+              </motion.div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-xl font-semibold mb-4 text-white">Category Distribution</h3>
-                {Object.keys(categoryData).length > 0 ? <Pie data={pieData} /> : <p className="text-white/60">No expense data available</p>}
+            {/* Visual Breakdown Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Pie Chart Card */}
+              <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md flex flex-col">
+                <h3 className="text-lg font-bold text-foreground mb-1">
+                  Category Distribution
+                </h3>
+                <p className="text-xs text-muted-foreground mb-4 pb-3 border-b border-border/60">
+                  Visual ratio of total expense outflow
+                </p>
+                <div className="flex-1 flex items-center justify-center w-full min-h-[300px] my-auto py-2">
+                  <div className="w-full max-w-[340px] sm:max-w-[380px] h-[280px] sm:h-[320px] flex items-center justify-center">
+                    <Pie data={pieData} options={chartOptions} />
+                  </div>
+                </div>
               </div>
 
-              <div className="p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-                <h3 className="text-xl font-semibold mb-4 text-white">Breakdown by Category</h3>
-                <div className="space-y-3">
-                  {Object.entries(categoryData).map(([category, amount], idx) => (
-                    <div key={idx} className="flex justify-between px-4 py-2 rounded-lg bg-purple-900/20 border border-purple-500/10">
-                      <span className="capitalize">{category}</span>
-                      <span className="text-green-400 font-semibold">₹{amount}</span>
-                    </div>
-                  ))}
+              {/* Category Breakdown List */}
+              <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md flex flex-col justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-foreground mb-1">
+                    Breakdown by Category
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-5">
+                    Individual category aggregates
+                  </p>
+
+                  <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                    {Object.entries(categoryData).map(([category, amount], idx) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center p-3 rounded-2xl bg-secondary/30 border border-border/60 hover:bg-secondary/50 transition"
+                      >
+                        <span className="font-semibold text-foreground capitalize text-sm">
+                          {category}
+                        </span>
+                        <span className="font-extrabold text-foreground text-sm">
+                          ₹ {Number(amount).toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-border/60 text-xs text-muted-foreground">
+                  Categories automatically populate as you record entries.
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 p-6 rounded-xl bg-purple-900/20 border border-purple-500/20">
-              <h3 className="text-2xl font-bold mb-4 text-white">Smart Spending Insights</h3>
-              <div className="space-y-4">
+            {/* Smart Spending Insights & Tips */}
+            <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md">
+              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/60">
+                <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-lg">
+                  <FaLightbulb />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">
+                    Smart Financial Insights & Tips
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Actionable advice generated from your recent behavior
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {Object.entries(categoryData)
                   .sort((a, b) => b[1] - a[1])
-                  .slice(0, 3)
+                  .slice(0, 4)
                   .map(([category, amount], idx) => {
-                    let label = "";
-                    if (amount > 0.5 * totalSpent) label = "💰 High Spending";
-                    else if (amount > 0.3 * totalSpent) label = "⚠️ Be Careful";
-                    else label = "✅ Balanced";
+                    const isHigh = totalSpent > 0 && amount > 0.4 * totalSpent;
+                    const isMedium = totalSpent > 0 && amount > 0.2 * totalSpent;
+
                     return (
-                      <div key={idx} className="flex justify-between items-center p-4 rounded-lg bg-purple-900/20 border border-purple-500/10">
+                      <div
+                        key={idx}
+                        className="p-4 rounded-2xl bg-secondary/30 border border-border/60 flex items-center justify-between"
+                      >
                         <div>
-                          <p className="capitalize text-lg font-semibold">{category}</p>
-                          <p className="text-white/60">Spent ₹{amount}</p>
+                          <div className="font-bold text-foreground capitalize text-sm">
+                            {category}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            Spent ₹{amount} ({totalSpent > 0 ? ((amount / totalSpent) * 100).toFixed(0) : 0}% of expenses)
+                          </div>
                         </div>
-                        <span className="text-sm font-medium px-3 py-1 rounded-full bg-purple-900/30 border border-purple-500/10">{label}</span>
+
+                        <span
+                          className={`text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                            isHigh
+                              ? "bg-destructive/10 text-destructive border border-destructive/20"
+                              : isMedium
+                              ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                              : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                          }`}
+                        >
+                          {isHigh ? "High Outflow" : isMedium ? "Moderate" : "Well Balanced"}
+                        </span>
                       </div>
                     );
                   })}
               </div>
 
-              <div className="mt-6 p-4 rounded-lg bg-purple-900/20 border border-purple-500/10">
-                <h4 className="text-lg font-semibold mb-2 text-white">Spending Tip</h4>
-                <p className="text-white/60">
-                  {totalSpent > budget
-                    ? "You've crossed your monthly budget. Consider limiting non-essential expenses like shopping or food deliveries."
-                    : totalSpent > 0.75 * budget
-                      ? "You're close to hitting your budget. Monitor your spending carefully in the coming days."
-                      : "You're managing your budget well. Keep tracking regularly!"}
-                </p>
+              {/* Dynamic Tip Box */}
+              <div className="mt-6 p-4 rounded-2xl bg-accent/30 border border-border text-xs sm:text-sm text-foreground flex items-start gap-3">
+                <FaCheckCircle className="text-primary mt-0.5 shrink-0" />
+                <div>
+                  <div className="font-bold mb-0.5">Budget Health Advisory:</div>
+                  <div className="text-muted-foreground">
+                    {totalSpent > budget
+                      ? "You have surpassed your designated monthly budget threshold. Prioritize essential commitments and pause discretionary purchases."
+                      : totalSpent > 0.75 * budget
+                      ? "You are nearing 75% of your target monthly limit. Monitor daily micro-transactions over the remaining period."
+                      : "Great financial discipline! You are pacing well within your designated spending targets."}
+                  </div>
+                </div>
               </div>
             </div>
           </>
         )}
-      </div>
+      </main>
     </div>
   );
 };

@@ -3,7 +3,6 @@ import { getAllTransaction , addTransaction, editTransaction , deleteTransaction
 import authMiddleware from "../middleware/authMiddleware.js";
 import { askChatBot } from "../controllers/chatBotController.js";
 import {showChat } from "../controllers/showChat.js";
-import {resendOtp} from "../controllers/resendOtp.js"
 const router = express.Router();
 
 
@@ -19,9 +18,6 @@ router.post("/ask-chatbot",authMiddleware , askChatBot);
 
 //show chat
 router.get("/chat-history", authMiddleware , showChat);
-
-//resend-otp
-router.post("/resend-otp" , authMiddleware , resendOtp );
 
 
 

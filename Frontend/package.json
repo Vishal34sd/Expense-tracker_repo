@@ -14,6 +14,7 @@
     "@radix-ui/react-accordion": "^1.2.12",
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.10.0",
+    "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -30,6 +31,7 @@
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.7.0",
     "react-speech-recognition": "^4.0.1",
+    "sweetalert2": "^11.26.25",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.11",
     "xlsx": "^0.18.5"

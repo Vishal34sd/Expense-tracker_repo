@@ -1,17 +1,13 @@
 import User from "../model/userSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
-import { otpGenerator } from "../utils/otp.js";
-import { sendEmail } from "../utils/nodeMailerConfig.js";
 import { OAuth2Client } from "google-auth-library"
 import { hashPassword } from "../utils/hashPassword.js"
 import crypto from "crypto"
 
 const userRegister = async (req, res) => {
   try {
-
-    let { username, email, password } = req.body;
-
+    let { username, email, password, avatar } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({
@@ -19,6 +15,9 @@ const userRegister = async (req, res) => {
         message: "All fields (username, email, password) are required"
       });
     }
+
+    username = String(username).trim();
+    email = String(email).trim().toLowerCase();
 
     const userExists = await User.findOne({
       $or: [{ username }, { email }]
@@ -34,64 +33,60 @@ const userRegister = async (req, res) => {
       });
     }
 
-
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
       username,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      avatar: avatar || "avatar1",
+      isEmailVerified: true
     });
 
     const savedUser = await newUser.save();
 
+    const accessToken = jwt.sign(
+      {
+        userId: savedUser._id,
+        username: savedUser.username,
+        email: savedUser.email,
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "30m" }
+    );
 
-    if (!savedUser) {
-      return res.status(400).json({
-        success: false,
-        message: "User registration failed"
-      });
-    }
-
-    const otp = otpGenerator();
-    await sendEmail(email, otp);
-    savedUser.otp = otp;
-    savedUser.expiresIn = Date.now() + 5 * 60 * 1000; // otp expires in 5min
-    await savedUser.save();
-
-    const accessToken = await jwt.sign({
-      userId: savedUser._id,
-      username: savedUser.username,
-      email: savedUser.email,
-    }, process.env.JWT_SECRET_KEY, { expiresIn: "30m" });
-
-    if (!accessToken) {
-      return res.status(401).json({
-        success: false,
-        message: "access token cannot be created"
-      })
-    }
-
+    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 60 * 60 * 1000,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
+      success: true,
       message: "Registration successful",
       user: {
+        id: savedUser._id,
         username: savedUser.username,
         email: savedUser.email,
+        avatar: savedUser.avatar || "avatar1",
       }
     });
 
   } catch (err) {
-    res.status(500).json({
+    console.error("Error in userRegister:", err);
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyPattern || {})[0] || "field";
+      return res.status(400).json({
+        success: false,
+        message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`
+      });
+    }
+    return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: err.message || "Internal server error"
     });
   }
 };
@@ -99,7 +94,14 @@ const userRegister = async (req, res) => {
 const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const emailExist = await User.findOne({ email });
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required"
+      });
+    }
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const emailExist = await User.findOne({ email: normalizedEmail });
     if (!emailExist) {
       return res.status(400).json({
         success: false,
@@ -111,101 +113,47 @@ const userLogin = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: "Password is incorrect"
-      })
+      });
     }
 
-    if (!emailExist.isVerified) {
-      return res.status(403).json({ msg: "Please verify your email first" });
-    }
+    const accessToken = jwt.sign(
+      {
+        userId: emailExist._id,
+        username: emailExist.username,
+        email: emailExist.email
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "30m" }
+    );
 
-    const accessToken = await jwt.sign({
-      userId: emailExist._id,
-      username: emailExist.username,
-      email: emailExist.email
-
-
-    }, process.env.JWT_SECRET_KEY, { expiresIn: "30m" });
-
-    if (!accessToken) {
-      return res.status(400).json({
-        success: false,
-        message: "Login failed"
-      })
-    }
-
+    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 60 * 60 * 1000,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
+      success: true,
       message: "Login successful",
       user: {
+        id: emailExist._id,
         username: emailExist.username,
         email: emailExist.email,
+        avatar: emailExist.avatar || "avatar1",
       }
     });
 
-  }
-  catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Something went wrong"
-    })
-  }
-}
-const verifyOTP = async (req, res) => {
-  try {
-    const { otp } = req.body;
-
-    const providedOtp = otp !== undefined && otp !== null ? String(otp).trim() : "";
-
-    if (!providedOtp) {
-      return res.status(400).json({
-        success: false,
-        message: "OTP is required"
-      });
-    }
-
-    const userEmail = await User.findOne({ email: req.userInfo.email });
-
-    if (!userEmail) {
-      return res.status(404).json({
-        success: false,
-        message: "Email not found"
-      });
-    }
-
-    if (!userEmail.otp) {
-      return res.status(400).json({ success: false, message: "No OTP found for this user" });
-    }
-
-    if (String(userEmail.otp).trim() !== providedOtp) {
-      return res.status(400).json({ success: false, message: "Invalid OTP" });
-    }
-
-    if (!userEmail.expiresIn || userEmail.expiresIn < Date.now()) {
-      return res.status(400).json({ success: false, message: "OTP has expired" });
-    }
-
-    userEmail.otp = null;
-    userEmail.expiresIn = null;
-    userEmail.isVerified = true
-    await userEmail.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "OTP verified successfully"
-    });
   } catch (err) {
+    console.error("Error in userLogin:", err);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: err.message || "Something went wrong"
     });
   }
 };
+
 
 const changePassword = async (req, res) => {
   const userId = req.userInfo.userId;
@@ -378,4 +326,78 @@ const googleAuthCallbackHandler = async (req, res) => {
   }
 };
 
-export { userRegister, userLogin, verifyOTP, changePassword, googleAuthCallbackHandler, userLogout };
+const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.userInfo.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        avatar: user.avatar || "avatar1",
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to fetch profile",
+    });
+  }
+};
+
+const updateProfile = async (req, res) => {
+  try {
+    const { username, avatar } = req.body;
+    const updateData = {};
+    if (username) updateData.username = String(username).trim();
+    if (avatar) updateData.avatar = String(avatar).trim();
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.userInfo.userId,
+      updateData,
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        avatar: updatedUser.avatar || "avatar1",
+        createdAt: updatedUser.createdAt,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to update profile",
+    });
+  }
+};
+
+export {
+  userRegister,
+  userLogin,
+  changePassword,
+  googleAuthCallbackHandler,
+  userLogout,
+  getProfile,
+  updateProfile,
+};
