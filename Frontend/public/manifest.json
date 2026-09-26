@@ -1,0 +1,35 @@
+{
+  "short_name": "SmartExpense",
+  "name": "SmartExpense — Expense Tracking Reimagined",
+  "description": "Smart personal expense tracking, financial analytics, and AI budgeting assistant.",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/logo-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/smartExpense_logo.png",
+      "type": "image/png",
+      "sizes": "1618x1536",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#090d16",
+  "theme_color": "#0ea5e9",
+  "display": "standalone",
+  "scope": "/"
+}
