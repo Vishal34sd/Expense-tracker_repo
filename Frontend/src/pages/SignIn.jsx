@@ -67,6 +67,27 @@ const SignIn = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { isDark, toggleTheme } = useTheme();
 
+  // If user session is already active, redirect straight to dashboard
+  React.useEffect(() => {
+    const stored = localStorage.getItem("userInfo");
+    if (!stored) return;
+
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/api/v1/profile`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.data?.user) {
+          navigate("/dashboard", { replace: true });
+        }
+      })
+      .catch((err) => {
+        if (err?.response?.status === 401) {
+          localStorage.removeItem("userInfo");
+        }
+      });
+  }, [navigate]);
+
   const formHandler = async (event) => {
     event.preventDefault();
     setShowLoader(true);

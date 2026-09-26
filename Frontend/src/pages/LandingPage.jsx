@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import {
   FaWallet,
@@ -14,6 +15,55 @@ import {
 import { MdInsights, MdSecurity } from "react-icons/md";
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(() => {
+    try {
+      return Boolean(localStorage.getItem("userInfo"));
+    } catch {
+      return false;
+    }
+  });
+
+  // If user session is active and user didn't logout, redirect straight to dashboard
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkActiveSession = async () => {
+      const storedUser = localStorage.getItem("userInfo");
+      if (!storedUser) {
+        setIsCheckingAuth(false);
+        return;
+      }
+
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/profile`,
+          { withCredentials: true }
+        );
+
+        if (isMounted && res.data?.user) {
+          navigate("/dashboard", { replace: true });
+          return;
+        }
+      } catch (err) {
+        if (err?.response?.status === 401) {
+          // Token expired or invalid -> clear stale user info
+          localStorage.removeItem("userInfo");
+        }
+      }
+
+      if (isMounted) {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkActiveSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [navigate]);
+
   const fullTitle = useMemo(() => "Expense Tracking, Reimagined", []);
   const [typedTitle, setTypedTitle] = useState("");
 
@@ -129,6 +179,26 @@ export default function LandingPage() {
       ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+        <div className="relative flex flex-col items-center">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center p-3 mb-4 shadow-xl shadow-primary/10 animate-pulse">
+            <img
+              src="/smartExpense_logo.png"
+              alt="SmartExpense"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+            <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+            <span>Resuming your active session...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
