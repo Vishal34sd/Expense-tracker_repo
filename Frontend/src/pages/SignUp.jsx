@@ -76,15 +76,15 @@ const SignUp = () => {
       </div>
 
       {/* Top Navbar Header */}
-      <header className="fixed top-4 left-6 right-6 flex justify-between items-center z-20 max-w-7xl mx-auto">
+      <header className="fixed top-3 sm:top-4 left-3 sm:left-6 right-3 sm:right-6 flex justify-between items-center z-20 max-w-7xl mx-auto">
         <Link
           to="/"
-          className="inline-flex items-center gap-2.5 text-foreground font-bold text-lg group"
+          className="inline-flex items-center gap-2 sm:gap-2.5 text-foreground font-bold text-base sm:text-lg group"
         >
-          <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-xs">
-            <FaWallet />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-xs">
+            <FaWallet className="text-sm sm:text-base" />
           </div>
-          <span className="font-sans font-extrabold text-lg sm:text-xl">
+          <span className="font-sans font-extrabold text-base sm:text-xl">
             Smart<span className="text-primary font-serif italic">Expense</span>
           </span>
         </Link>
@@ -93,26 +93,26 @@ const SignUp = () => {
           onClick={toggleTheme}
           type="button"
           aria-label="Toggle theme"
-          className="p-2.5 rounded-full bg-secondary text-secondary-foreground hover:bg-accent border border-border transition-all shadow-xs"
+          className="p-2 sm:p-2.5 rounded-full bg-secondary text-secondary-foreground hover:bg-accent border border-border transition-all shadow-xs"
         >
           {isDark ? (
-            <FiSun className="text-amber-300 text-base" />
+            <FiSun className="text-amber-300 text-sm sm:text-base" />
           ) : (
-            <FiMoon className="text-primary text-base" />
+            <FiMoon className="text-primary text-sm sm:text-base" />
           )}
         </button>
       </header>
 
       {/* Main Two-Half Container */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto my-auto pt-16 pb-6">
+      <div className="relative z-10 w-full max-w-6xl mx-auto my-auto pt-14 sm:pt-16 pb-6">
         <motion.div
           initial={{ opacity: 0, scale: 0.98, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="grid grid-cols-1 lg:grid-cols-12 bg-card/85 backdrop-blur-xl border border-border/80 rounded-3xl shadow-2xl overflow-hidden"
         >
-          {/* LEFT HALF: Features, Branding, Quote */}
-          <div className="lg:col-span-5 bg-gradient-to-br from-primary/10 via-secondary/40 to-chart-2/10 p-6 sm:p-10 border-b lg:border-b-0 lg:border-r border-border/60 flex flex-col justify-between">
+          {/* LEFT HALF: Features, Branding, Quote (Desktop only, hidden on mobile for space) */}
+          <div className="hidden lg:flex lg:col-span-5 bg-gradient-to-br from-primary/10 via-secondary/40 to-chart-2/10 p-5 sm:p-8 lg:p-10 border-b lg:border-b-0 lg:border-r border-border/60 flex-col justify-between">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider mb-5 border border-primary/20">
                 <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
@@ -188,7 +188,7 @@ const SignUp = () => {
           </div>
 
           {/* RIGHT HALF: Registration Form with Side-by-Side Fields */}
-          <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center">
+          <div className="lg:col-span-7 p-5 sm:p-8 lg:p-10 flex flex-col justify-center">
             <div className="mb-5">
               <h3 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
                 Create Your Account
@@ -204,7 +204,7 @@ const SignUp = () => {
                 <label className="block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
                   Choose Avatar ({AVATARS.find((a) => a.id === selectedAvatar)?.name})
                 </label>
-                <div className="grid grid-cols-6 gap-2 p-2 rounded-2xl bg-secondary/30 border border-border/70">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 p-2 rounded-2xl bg-secondary/30 border border-border/70">
                   {AVATARS.map((av) => {
                     const isSelected = selectedAvatar === av.id;
                     return (

@@ -185,7 +185,7 @@ const ViewSummary = () => {
               whileTap={{ scale: 0.98 }}
               onClick={exportToExcel}
               disabled={transactions.length === 0}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20 transition-all disabled:opacity-50"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20 transition-all disabled:opacity-50"
             >
               <FaFileExcel className="text-emerald-300" />
               <span>Export Excel</span>
@@ -198,7 +198,7 @@ const ViewSummary = () => {
             Analyzing transaction statistics…
           </div>
         ) : transactions.length === 0 ? (
-          <div className="bg-card border border-border/80 rounded-3xl p-10 text-center shadow-md">
+          <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-10 text-center shadow-md">
             <div className="w-14 h-14 rounded-2xl bg-secondary mx-auto flex items-center justify-center text-primary text-xl mb-4">
               <FaChartPie />
             </div>
@@ -219,11 +219,11 @@ const ViewSummary = () => {
         ) : (
           <>
             {/* Top Stat Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 mb-8">
               {/* Monthly Budget Card */}
               <motion.div
                 whileHover={{ y: -3 }}
-                className="bg-card border border-border/80 rounded-3xl p-6 shadow-md"
+                className="bg-card border border-border/80 rounded-3xl p-4 sm:p-6 shadow-md"
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -247,7 +247,7 @@ const ViewSummary = () => {
                     />
                     <button
                       onClick={handleBudgetSave}
-                      className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold"
+                      className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shrink-0"
                     >
                       Save
                     </button>
@@ -285,7 +285,7 @@ const ViewSummary = () => {
               {/* Highest Category */}
               <motion.div
                 whileHover={{ y: -3 }}
-                className="bg-card border border-border/80 rounded-3xl p-6 shadow-md"
+                className="bg-card border border-border/80 rounded-3xl p-4 sm:p-6 shadow-md"
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -295,7 +295,7 @@ const ViewSummary = () => {
                     <FaExclamationTriangle />
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-foreground capitalize">
+                <div className="text-2xl sm:text-3xl font-extrabold text-foreground capitalize truncate">
                   {mostSpentCategory[0]}
                 </div>
                 <p className="text-sm font-semibold text-destructive mt-3">
@@ -309,7 +309,7 @@ const ViewSummary = () => {
               {/* Average Transaction */}
               <motion.div
                 whileHover={{ y: -3 }}
-                className="bg-card border border-border/80 rounded-3xl p-6 shadow-md"
+                className="bg-card border border-border/80 rounded-3xl p-4 sm:p-6 shadow-md sm:col-span-2 md:col-span-1"
               >
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -329,26 +329,26 @@ const ViewSummary = () => {
             </div>
 
             {/* Visual Breakdown Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8">
               {/* Pie Chart Card */}
-              <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md flex flex-col">
-                <h3 className="text-lg font-bold text-foreground mb-1">
+              <div className="bg-card border border-border/80 rounded-3xl p-4 sm:p-6 md:p-8 shadow-md flex flex-col">
+                <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
                   Category Distribution
                 </h3>
                 <p className="text-xs text-muted-foreground mb-4 pb-3 border-b border-border/60">
                   Visual ratio of total expense outflow
                 </p>
-                <div className="flex-1 flex items-center justify-center w-full min-h-[300px] my-auto py-2">
-                  <div className="w-full max-w-[340px] sm:max-w-[380px] h-[280px] sm:h-[320px] flex items-center justify-center">
+                <div className="flex-1 flex items-center justify-center w-full min-h-[240px] sm:min-h-[300px] my-auto py-2">
+                  <div className="w-full max-w-[260px] sm:max-w-[340px] md:max-w-[380px] h-[220px] sm:h-[280px] md:h-[320px] flex items-center justify-center">
                     <Pie data={pieData} options={chartOptions} />
                   </div>
                 </div>
               </div>
 
               {/* Category Breakdown List */}
-              <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md flex flex-col justify-between">
+              <div className="bg-card border border-border/80 rounded-3xl p-4 sm:p-6 md:p-8 shadow-md flex flex-col justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-foreground mb-1">
+                  <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">
                     Breakdown by Category
                   </h3>
                   <p className="text-xs text-muted-foreground mb-5">
@@ -359,12 +359,12 @@ const ViewSummary = () => {
                     {Object.entries(categoryData).map(([category, amount], idx) => (
                       <div
                         key={idx}
-                        className="flex justify-between items-center p-3 rounded-2xl bg-secondary/30 border border-border/60 hover:bg-secondary/50 transition"
+                        className="flex justify-between items-center p-3 rounded-2xl bg-secondary/30 border border-border/60 hover:bg-secondary/50 transition text-xs sm:text-sm"
                       >
-                        <span className="font-semibold text-foreground capitalize text-sm">
+                        <span className="font-semibold text-foreground capitalize truncate mr-2">
                           {category}
                         </span>
-                        <span className="font-extrabold text-foreground text-sm">
+                        <span className="font-extrabold text-foreground shrink-0">
                           ₹ {Number(amount).toLocaleString("en-IN")}
                         </span>
                       </div>
@@ -379,13 +379,13 @@ const ViewSummary = () => {
             </div>
 
             {/* Smart Spending Insights & Tips */}
-            <div className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-md">
+            <div className="bg-card border border-border/80 rounded-3xl p-4 sm:p-6 md:p-8 shadow-md">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border/60">
-                <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-lg">
+                <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-lg shrink-0">
                   <FaLightbulb />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-foreground">
+                  <h3 className="text-base sm:text-lg font-bold text-foreground">
                     Smart Financial Insights & Tips
                   </h3>
                   <p className="text-xs text-muted-foreground">
@@ -405,10 +405,10 @@ const ViewSummary = () => {
                     return (
                       <div
                         key={idx}
-                        className="p-4 rounded-2xl bg-secondary/30 border border-border/60 flex items-center justify-between"
+                        className="p-3.5 sm:p-4 rounded-2xl bg-secondary/30 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                       >
-                        <div>
-                          <div className="font-bold text-foreground capitalize text-sm">
+                        <div className="min-w-0">
+                          <div className="font-bold text-foreground capitalize text-sm truncate">
                             {category}
                           </div>
                           <div className="text-xs text-muted-foreground mt-0.5">
@@ -417,7 +417,7 @@ const ViewSummary = () => {
                         </div>
 
                         <span
-                          className={`text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                          className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto shrink-0 ${
                             isHigh
                               ? "bg-destructive/10 text-destructive border border-destructive/20"
                               : isMedium

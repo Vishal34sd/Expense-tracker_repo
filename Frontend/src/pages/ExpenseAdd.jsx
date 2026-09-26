@@ -83,7 +83,7 @@ const AddExpense = () => {
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 bg-card/90 backdrop-blur-xl border border-border/80 rounded-3xl p-6 sm:p-10 w-full max-w-lg shadow-2xl"
+        className="relative z-10 bg-card/90 backdrop-blur-xl border border-border/80 rounded-3xl p-5 sm:p-10 w-full max-w-lg shadow-2xl"
       >
         {/* Header with back link */}
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-border/60">
@@ -119,24 +119,24 @@ const AddExpense = () => {
               <button
                 type="button"
                 onClick={() => setForm({ ...form, type: "expense" })}
-                className={`py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                className={`py-2 px-1 text-xs sm:text-sm font-bold transition-all duration-200 rounded-xl text-center ${
                   form.type === "expense"
                     ? "bg-destructive text-destructive-foreground shadow-md shadow-destructive/20"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Expense (Outflow)
+                Expense <span className="text-[11px] font-normal opacity-85 hidden sm:inline">(Outflow)</span>
               </button>
               <button
                 type="button"
                 onClick={() => setForm({ ...form, type: "income" })}
-                className={`py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                className={`py-2 px-1 text-xs sm:text-sm font-bold transition-all duration-200 rounded-xl text-center ${
                   form.type === "income"
                     ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Income (Inflow)
+                Income <span className="text-[11px] font-normal opacity-85 hidden sm:inline">(Inflow)</span>
               </button>
             </div>
           </div>

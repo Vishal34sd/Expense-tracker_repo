@@ -65,44 +65,94 @@ const CartoonSecurityMascot = ({ isTyping = false, isPeeking = false, size = "w-
             </g>
           )}
 
-          {/* Left Paw */}
+          {/* Left Hand & Arm - Visibly covers eyes */}
           <motion.g
-            animate={{
-              y: eyesClosed || peek ? 0 : 26,
-              opacity: eyesClosed || peek ? 1 : 0,
-            }}
-            transition={{ type: "spring", stiffness: 380, damping: 24 }}
+            animate={
+              eyesClosed
+                ? { y: 0, x: 0, rotate: 0 }
+                : peek
+                ? { y: 0, x: 0, rotate: 0 }
+                : { y: 34, x: -4, rotate: -15 }
+            }
+            transition={{ type: "spring", stiffness: 350, damping: 22 }}
           >
-            <ellipse
-              cx="36"
-              cy="44"
-              rx="8.5"
-              ry="7.5"
-              fill="#f59e0b"
+            {/* Arm */}
+            <path
+              d="M 18 90 Q 24 64 33 46"
               stroke="#d97706"
-              strokeWidth="1.5"
+              strokeWidth="11"
+              strokeLinecap="round"
+              fill="none"
             />
-            <circle cx="36" cy="44" r="3" fill="#fef3c7" />
+            <path
+              d="M 18 90 Q 24 64 33 46"
+              stroke="#fbbf24"
+              strokeWidth="8"
+              strokeLinecap="round"
+              fill="none"
+            />
+
+            {/* Hand / Palm */}
+            <ellipse
+              cx="34"
+              cy="42"
+              rx="10"
+              ry="9"
+              fill="#fbbf24"
+              stroke="#d97706"
+              strokeWidth="1.8"
+            />
+            {/* Finger Pads */}
+            <circle cx="27" cy="36" r="3.2" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+            <circle cx="34" cy="33" r="3.4" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+            <circle cx="41" cy="36" r="3.2" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+            {/* Palm center pad */}
+            <ellipse cx="34" cy="43" rx="4.5" ry="3.5" fill="#fef3c7" />
           </motion.g>
 
-          {/* Right Paw */}
+          {/* Right Hand & Arm - Visibly covers eyes / peeks */}
           <motion.g
-            animate={{
-              y: eyesClosed ? 0 : peek ? 14 : 26,
-              opacity: eyesClosed || peek ? 1 : 0,
-            }}
-            transition={{ type: "spring", stiffness: 380, damping: 24 }}
+            animate={
+              eyesClosed
+                ? { y: 0, x: 0, rotate: 0 }
+                : peek
+                ? { y: 16, x: 8, rotate: 25 }
+                : { y: 34, x: 4, rotate: 15 }
+            }
+            transition={{ type: "spring", stiffness: 350, damping: 22 }}
           >
-            <ellipse
-              cx="64"
-              cy="44"
-              rx="8.5"
-              ry="7.5"
-              fill="#f59e0b"
+            {/* Arm */}
+            <path
+              d="M 82 90 Q 76 64 67 46"
               stroke="#d97706"
-              strokeWidth="1.5"
+              strokeWidth="11"
+              strokeLinecap="round"
+              fill="none"
             />
-            <circle cx="64" cy="44" r="3" fill="#fef3c7" />
+            <path
+              d="M 82 90 Q 76 64 67 46"
+              stroke="#fbbf24"
+              strokeWidth="8"
+              strokeLinecap="round"
+              fill="none"
+            />
+
+            {/* Hand / Palm */}
+            <ellipse
+              cx="66"
+              cy="42"
+              rx="10"
+              ry="9"
+              fill="#fbbf24"
+              stroke="#d97706"
+              strokeWidth="1.8"
+            />
+            {/* Finger Pads */}
+            <circle cx="59" cy="36" r="3.2" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+            <circle cx="66" cy="33" r="3.4" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+            <circle cx="73" cy="36" r="3.2" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+            {/* Palm center pad */}
+            <ellipse cx="66" cy="43" rx="4.5" ry="3.5" fill="#fef3c7" />
           </motion.g>
         </svg>
 
@@ -112,7 +162,7 @@ const CartoonSecurityMascot = ({ isTyping = false, isPeeking = false, size = "w-
           key={isTyping ? "typing" : "idle"}
           className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-secondary/90 border border-border text-[10px] font-semibold text-muted-foreground whitespace-nowrap shadow-xs backdrop-blur-xs"
         >
-          {peek ? "Peeking! 👀" : eyesClosed ? "Eyes closed! 🙈" : "All safe! 🐻"}
+          {peek ? "Peeking! 👀" : eyesClosed ? "Eyes covered! 🙈" : "All safe! 🐻"}
         </motion.div>
       </div>
     </div>
