@@ -62,7 +62,7 @@ const Navbar = ({ onNavigate }) => {
         className="
           max-w-7xl mx-auto
           flex items-center justify-between
-          px-5 py-3 sm:px-7
+          px-3.5 py-2.5 sm:px-7 sm:py-3
           rounded-2xl sm:rounded-full
           backdrop-blur-xl
           bg-card/80
@@ -77,12 +77,12 @@ const Navbar = ({ onNavigate }) => {
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate("/")}
-          className="flex items-center gap-3 cursor-pointer select-none"
+          className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none"
         >
-          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary shadow-sm shadow-primary/20">
-            <FaWallet className="text-xl" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary shadow-sm shadow-primary/20 shrink-0">
+            <FaWallet className="text-base sm:text-xl" />
           </div>
-          <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-foreground font-sans">
+          <span className="font-extrabold text-lg sm:text-2xl tracking-tight text-foreground font-sans">
             Smart<span className="text-primary font-serif italic ml-0.5">Expense</span>
           </span>
         </motion.div>

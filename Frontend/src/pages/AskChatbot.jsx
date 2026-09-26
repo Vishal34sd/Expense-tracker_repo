@@ -146,16 +146,33 @@ const AskChatbot = () => {
     <div className="min-h-screen bg-background text-foreground flex transition-colors duration-300">
       <SideBar />
 
-      <main className="flex-1 p-4 sm:p-8 max-w-7xl mx-auto flex flex-col h-screen overflow-hidden">
-        {/* Top Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-border/60 shrink-0 mb-4">
+      <main className="chat-viewport flex-1 p-0 md:p-8 max-w-7xl mx-auto flex flex-col h-screen overflow-hidden">
+        {/* Mobile Slim Sub-Header (ChatGPT Style) */}
+        <div className="flex md:hidden items-center justify-between px-4 py-2 border-b border-border/50 bg-card/50 backdrop-blur-sm shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs shadow-2xs">
+              <FaRobot />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                <span>SmartExpense AI</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+              <p className="text-[10px] text-muted-foreground leading-none">
+                Personalized for {userName}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded-full border border-border/50">
+              {MAX_SEARCHES - searchCount}/{MAX_SEARCHES} queries
+            </span>
+          </div>
+        </div>
+
+        {/* Desktop Top Header */}
+        <div className="hidden md:flex items-center justify-between pb-4 border-b border-border/60 shrink-0 mb-4">
           <div className="flex items-center gap-3">
-            <Link
-              to="/dashboard"
-              className="sm:hidden p-2 rounded-xl bg-secondary text-foreground"
-            >
-              <FaArrowLeft />
-            </Link>
             <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-lg shadow-xs">
               <FaRobot />
             </div>
@@ -182,7 +199,7 @@ const AskChatbot = () => {
         </div>
 
         {/* Chat Layout: History drawer (desktop) + Chat conversation window */}
-        <div className="flex-1 flex gap-6 overflow-hidden">
+        <div className="flex-1 flex gap-6 overflow-hidden min-h-0">
           {/* Recent Query History Sidebar (Desktop) */}
           <div className="hidden lg:flex flex-col w-72 shrink-0 bg-card border border-border/80 rounded-3xl p-5 shadow-sm overflow-hidden">
             <div className="flex items-center gap-2 mb-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -231,11 +248,11 @@ const AskChatbot = () => {
           </div>
 
           {/* Main Chat Conversation Container */}
-          <div className="flex-1 flex flex-col bg-card border border-border/80 rounded-3xl shadow-sm overflow-hidden">
+          <div className="flex-1 flex flex-col bg-transparent md:bg-card md:border md:border-border/80 md:rounded-3xl md:shadow-sm overflow-hidden min-h-0">
             {/* Messages Scroll Area */}
             <div
               ref={chatScrollRef}
-              className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4"
+              className="flex-1 p-3 sm:p-6 overflow-y-auto space-y-3.5 flex flex-col"
             >
               {messages.map((msg, index) => {
                 const isUser = msg.role === "user";
@@ -244,27 +261,27 @@ const AskChatbot = () => {
                     key={index}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`flex items-start gap-3 ${
+                    className={`flex items-start gap-2.5 sm:gap-3 ${
                       isUser ? "flex-row-reverse" : "flex-row"
-                    }`}
+                    } ${messages.length <= 1 ? "my-auto" : ""}`}
                   >
                     {/* Avatar */}
                     {isUser ? (
-                      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 shadow-xs border border-primary/30">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden shrink-0 shadow-xs border border-primary/30 mt-0.5">
                         <UserAvatar id={userAvatarId} className="w-full h-full" />
                       </div>
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-primary/15 text-primary border border-primary/25 flex items-center justify-center shrink-0 text-xs shadow-xs">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/15 text-primary border border-primary/25 flex items-center justify-center shrink-0 text-xs shadow-xs mt-0.5">
                         <FaRobot />
                       </div>
                     )}
 
                     {/* Bubble */}
                     <div
-                      className={`max-w-[85%] sm:max-w-xl p-4 rounded-3xl text-sm leading-relaxed shadow-sm ${
+                      className={`max-w-[90%] sm:max-w-xl p-3 sm:p-4 rounded-2xl sm:rounded-3xl text-xs sm:text-sm leading-relaxed shadow-xs break-words ${
                         isUser
-                          ? "bg-primary text-primary-foreground rounded-tr-sm"
-                          : "bg-secondary/40 text-foreground border border-border/70 rounded-tl-sm"
+                          ? "bg-primary text-primary-foreground rounded-tr-xs"
+                          : "bg-secondary/40 text-foreground border border-border/70 rounded-tl-xs"
                       }`}
                     >
                       <ReactMarkdown
@@ -285,18 +302,18 @@ const AskChatbot = () => {
                         </div>
                       )}
 
-                      {/* Interactive follow-up suggestions under latest assistant response */}
+                      {/* Interactive follow-up suggestions under latest assistant response (desktop only, hidden on mobile for cleaner chat) */}
                       {index === messages.length - 1 && !isUser && (
-                        <div className="mt-3 pt-2.5 border-t border-border/40 flex flex-wrap items-center gap-1.5">
-                          <span className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1 mr-1">
+                        <div className="hidden md:flex mt-2.5 pt-2 border-t border-border/40 items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                          <span className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1 shrink-0 mr-0.5">
                             <FaLightbulb className="text-amber-400" />
-                            <span>Suggestions:</span>
+                            <span>Ask:</span>
                           </span>
                           {QUICK_FOLLOWUPS.map((q, qi) => (
                             <button
                               key={qi}
                               onClick={() => handleSearch(q.replace(/^[^a-zA-Z0-9]+/, ""))}
-                              className="text-[11px] px-2.5 py-1 rounded-full bg-card hover:bg-secondary border border-border/70 text-foreground/80 hover:text-foreground transition cursor-pointer shadow-2xs"
+                              className="text-[11px] px-2.5 py-1 rounded-full bg-card hover:bg-secondary border border-border/70 text-foreground/80 hover:text-foreground transition cursor-pointer shadow-2xs shrink-0 whitespace-nowrap"
                             >
                               {q}
                             </button>
@@ -310,11 +327,11 @@ const AskChatbot = () => {
 
               {/* Typing / Loading indicator */}
               {showLoader && (
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-secondary text-secondary-foreground border border-border flex items-center justify-center text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-secondary text-secondary-foreground border border-border flex items-center justify-center text-xs">
                     <FaRobot />
                   </div>
-                  <div className="p-4 rounded-3xl bg-secondary/40 border border-border/70 rounded-tl-sm flex items-center gap-1.5">
+                  <div className="p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-secondary/40 border border-border/70 rounded-tl-xs flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
                     <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />
                     <div className="w-2 h-2 rounded-full bg-primary animate-bounce" />
@@ -326,27 +343,27 @@ const AskChatbot = () => {
               )}
             </div>
 
-            {/* Input Bar */}
-            <div className="p-4 border-t border-border/60 bg-card/60 backdrop-blur-md">
+            {/* Input Bar (ChatGPT Style Pill) */}
+            <div className="p-2.5 sm:p-4 border-t border-border/50 bg-background/80 md:bg-card/60 backdrop-blur-md shrink-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSearch();
                 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1.5 sm:gap-2 bg-secondary/40 border border-border/80 rounded-full p-1 sm:p-1.5 focus-within:ring-2 focus-within:ring-primary/40 focus-within:border-primary/50 transition-all shadow-xs"
               >
                 {/* Speech mic toggle */}
                 <button
                   type="button"
                   onClick={handleMicToggle}
-                  className={`p-3 rounded-2xl border transition-all ${
+                  className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all ${
                     listening
-                      ? "bg-destructive text-destructive-foreground border-destructive animate-pulse"
-                      : "bg-secondary text-secondary-foreground border-border hover:bg-accent"
+                      ? "bg-destructive text-destructive-foreground animate-pulse"
+                      : "bg-secondary text-secondary-foreground hover:bg-accent"
                   }`}
                   title={listening ? "Listening... click to stop" : "Voice input"}
                 >
-                  <FaMicrophone className={listening ? "animate-spin" : ""} />
+                  <FaMicrophone className={`text-xs ${listening ? "animate-spin" : ""}`} />
                 </button>
 
                 <input
@@ -356,10 +373,10 @@ const AskChatbot = () => {
                   disabled={showLoader || searchCount >= MAX_SEARCHES}
                   placeholder={
                     searchCount >= MAX_SEARCHES
-                      ? "Question limit reached for this session."
-                      : "Ask about your transactions, totals, or budget..."
+                      ? "Daily question limit reached."
+                      : "Ask about your transactions, totals..."
                   }
-                  className="flex-1 px-4 py-3 bg-secondary/30 border border-border/80 rounded-2xl text-foreground text-sm placeholder-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-50 transition"
+                  className="flex-1 bg-transparent px-2.5 text-xs sm:text-sm text-foreground placeholder-muted-foreground/60 focus:outline-none disabled:opacity-50"
                 />
 
                 <motion.button
@@ -367,10 +384,10 @@ const AskChatbot = () => {
                   whileTap={{ scale: 0.95 }}
                   type="submit"
                   disabled={!userQuestion.trim() || showLoader || searchCount >= MAX_SEARCHES}
-                  className="p-3.5 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/25 disabled:opacity-40 transition"
+                  className="w-9 h-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center shadow-xs shrink-0 disabled:opacity-30 transition cursor-pointer"
                   title="Send message"
                 >
-                  <FaPaperPlane className="text-sm" />
+                  <FaPaperPlane className="text-xs -translate-x-0.5" />
                 </motion.button>
               </form>
             </div>

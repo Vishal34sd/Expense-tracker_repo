@@ -67,7 +67,7 @@ const ChangePassword = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="bg-card/90 backdrop-blur-xl border border-border/80 shadow-xl rounded-3xl p-8 sm:p-10 w-full max-w-md relative"
+          className="bg-card/90 backdrop-blur-xl border border-border/80 shadow-xl rounded-3xl p-5 sm:p-10 w-full max-w-md relative"
         >
           <div className="text-center mb-6">
             <CartoonSecurityMascot
@@ -94,6 +94,7 @@ const ChangePassword = () => {
                 <FaLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs" />
                 <input
                   value={oldPassword}
+                  onFocus={() => setIsTyping(true)}
                   onChange={handlePasswordInput(setOldPassword)}
                   onBlur={handleBlur}
                   id="oldPassword"
@@ -123,6 +124,7 @@ const ChangePassword = () => {
                 <FaLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs" />
                 <input
                   value={newPassword}
+                  onFocus={() => setIsTyping(true)}
                   onChange={handlePasswordInput(setNewPassword)}
                   onBlur={handleBlur}
                   id="newPassword"

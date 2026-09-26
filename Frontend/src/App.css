@@ -431,3 +431,37 @@
 .smart-swal-cancel-btn:hover {
   filter: brightness(0.95) !important;
 }
+
+/* Responsive mobile layout adjustments */
+@media (max-width: 767px) {
+  /* Provide automatic clearance for standard scrolling pages */
+  main:not(.chat-viewport) {
+    padding-top: 4.5rem !important;
+    padding-bottom: 5.5rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    min-width: 0 !important;
+  }
+
+  /* Full-viewport chat layout: docks message bar right above bottom nav bar */
+  main.chat-viewport {
+    padding-top: 3.25rem !important;
+    padding-bottom: 3.75rem !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Universal anti-overflow safeguards */
+html, body {
+  max-width: 100vw;
+  overflow-x: clip;
+}
+
+/* Ensure canvas and charts never exceed their parents */
+canvas {
+  max-width: 100% !important;
+}
