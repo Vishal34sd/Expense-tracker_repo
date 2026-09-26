@@ -1,22 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import mongoose from "mongoose";
-import Transaction from "../model/transactionSchema.js";
 import Question from "../model/questionSchema.js";
 import User from "../model/userSchema.js";
+import Transaction from "../model/transactionSchema.js";
+import { askKB } from "../rag/askKB.js";
 
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { BufferMemory } from "langchain/memory";
-import { ConversationChain } from "langchain/chains";
-
-const MAX_SEARCHES = 3;
-
-const llm = new ChatGoogleGenerativeAI({
-  model: "gemini-2.5-flash",
-  apiKey: process.env.GEMINI_API_KEY,
-  temperature: 0.7,
-});
+const MAX_SEARCHES = 10; // Generous daily limit for helpful assistant interactions
 
 export const askChatBot = async (req, res) => {
   try {
@@ -38,59 +28,65 @@ export const askChatBot = async (req, res) => {
       return res.status(429).json({ error: "Daily limit reached" });
     }
 
-    const transactions = await Transaction.find({ userId });
-    const validTx = transactions.filter(
-      t => t.category && t.amount != null && t.date
-    );
-
-    if (!validTx.length) {
-      return res.status(400).json({ error: "No transactions found" });
-    }
-
-    const prevQA = await Question.find({ userId })
-      .sort({ date: 1 })
-      .select("question reply answers -_id");
-
-    const memory = new BufferMemory({
-      memoryKey: "history",
-      inputKey: "input",
-      outputKey: "response",
-      returnMessages: false,
-    });
-
-    for (const qa of prevQA) {
-      const reply = (qa.reply || qa.answers || "").trim();
-      if (!reply) continue;
-      await memory.saveContext(
-        { input: qa.question },
-        { response: reply }
-      );
-    }
-
-    const chain = new ConversationChain({
-      llm,
-      memory,
-    });
-
     const userQuestion = req.body.userQuestion;
     if (!userQuestion?.trim()) {
       return res.status(400).json({ error: "userQuestion is required" });
     }
 
-    const prompt = `
-You are an intelligent Expense Assistant.
+    // 1. Analyze and remember user financial behavior from database records
+    let behaviorSummary = "New user with minimal transaction history";
+    try {
+      const recentTransactions = await Transaction.find({ userId })
+        .sort({ date: -1 })
+        .limit(100)
+        .lean();
 
-User expenses:
-${validTx.map(t =>
-  `• ₹${t.amount} on ${t.category} (${new Date(t.date).toDateString()})`
-).join("\n")}
+      let totalExpense = 0;
+      let totalIncome = 0;
+      const categoryMap = {};
 
-Question:
-${userQuestion}
-`;
+      for (const t of recentTransactions) {
+        const amt = Number(t.amount) || 0;
+        if (t.type === "expense") {
+          totalExpense += amt;
+          categoryMap[t.category] = (categoryMap[t.category] || 0) + amt;
+        } else if (t.type === "income") {
+          totalIncome += amt;
+        }
+      }
 
-    const result = await chain.invoke({ input: prompt });
-    const reply = result?.response || "Unable to generate response";
+      const topCategories = Object.entries(categoryMap)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([cat, amt]) => `${cat} (₹${amt.toLocaleString()})`);
+
+      const behaviorParts = [
+        `Total Logged Expenses: ₹${totalExpense.toLocaleString()}`,
+        `Total Logged Income: ₹${totalIncome.toLocaleString()}`,
+        topCategories.length ? `Primary Spending Categories: ${topCategories.join(", ")}` : "No distinct heavy expense categories yet",
+        recentTransactions.length ? `Total Transactions Tracked: ${recentTransactions.length}` : "",
+      ].filter(Boolean);
+
+      behaviorSummary = behaviorParts.join(" | ");
+
+      // Persist / update remembered behavior in user document
+      userInfo.financialBehavior = `Top: ${topCategories.join(", ") || "Diverse"}; Total Expense: ₹${totalExpense}`;
+    } catch (bErr) {
+      console.warn("Could not calculate user financial behavior:", bErr.message);
+    }
+
+    // 2. Prepare userProfile for the AI assistant
+    const userProfile = {
+      name: userInfo.username || "Friend",
+      email: userInfo.email || "",
+      behavior: behaviorSummary,
+      avatar: userInfo.avatar || "avatar1",
+    };
+
+    const ragResult = await askKB(userQuestion.trim(), userId, 5, userProfile);
+    const reply = ragResult?.answer || "Unable to generate response from expense knowledge base";
+    const confidence = ragResult?.confidence ?? 0;
+    const sources = ragResult?.sources || [];
 
     await Question.create({
       userId,
@@ -102,13 +98,16 @@ ${userQuestion}
     userInfo.searchCount += 1;
     await userInfo.save();
 
-    res.json({
+    return res.status(200).json({
       reply,
+      confidence,
+      sources,
       searchCount: userInfo.searchCount,
+      userName: userInfo.username,
     });
-
   } catch (err) {
-    res.status(500).json({
+    console.error("Error in askChatBot controller:", err.message);
+    return res.status(500).json({
       error: err.message || "Internal server error",
     });
   }

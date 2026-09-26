@@ -10,11 +10,12 @@ import ExpenseAdd from './pages/ExpenseAdd.jsx'
 import AllTransaction from './pages/AllTransaction.jsx'
 import ViewSummary from './pages/SummaryPage.jsx'
 import Home from './pages/Home.jsx'
-import OTP_Page from './pages/OTP_Page.jsx'
 import ChangePassword from './pages/ChangePassword.jsx'
 import AskChatbot from './pages/AskChatbot.jsx'
+import Profile from './pages/Profile.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import { SnackbarProvider } from "notistack";
+import { ThemeProvider } from './context/ThemeContext.jsx'
 
 
 const appRouter = createBrowserRouter([
@@ -50,9 +51,9 @@ const appRouter = createBrowserRouter([
     path: "/home",
     element: <Home/>
   },
-  {
-    path: "/otp-verify",
-    element: <OTP_Page/>
+   {
+    path: "/profile",
+    element: <Profile/>
   },
    {
     path: "/changePassword",
@@ -70,11 +71,13 @@ const appRouter = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById('root')).render(
-  <SnackbarProvider
-      maxSnack={3}
-      autoHideDuration={3000}
-      anchorOrigin={{ vertical: "top", horizontal: "center" }}
-    >
-  <RouterProvider router={appRouter} />
-  </SnackbarProvider>
+  <ThemeProvider>
+    <SnackbarProvider
+        maxSnack={3}
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+      <RouterProvider router={appRouter} />
+    </SnackbarProvider>
+  </ThemeProvider>
 )

@@ -12,7 +12,7 @@ export const decodeToken = (token) => {
   try {
     const decoded = jwtDecode(token);
     return decoded;
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 }

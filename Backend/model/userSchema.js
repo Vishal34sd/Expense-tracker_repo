@@ -17,15 +17,13 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
-    otp: {
-        type: String,
-    },
-    expiresIn: {
-        type: Date,
-    },
     isEmailVerified: {
         type: Boolean,
-        default: false,
+        default: true,
+    },
+    avatar: {
+        type: String,
+        default: "avatar1",
     },
 
     // ----- New fields for rate limiting -----
@@ -35,6 +33,10 @@ const userSchema = new mongoose.Schema({
     },
     lastSearchDate: {
         type: Date,
+    },
+    financialBehavior: {
+        type: String,
+        default: "",
     },
 }, { timestamps: true });
 
