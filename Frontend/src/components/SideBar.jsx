@@ -21,11 +21,11 @@ import { FiSun, FiMoon } from "react-icons/fi";
 import { useTheme } from "../context/ThemeContext";
 import { UserAvatar } from "../utils/avatars.jsx";
 import { confirmAction } from "../utils/alerts";
-import SidebarExpenseAnalysis from "./SidebarExpenseAnalysis";
 
 const menuItems = [
   { path: "/home", label: "Overview", icon: FaHome },
   { path: "/dashboard", label: "Dashboard", icon: FaWallet },
+  { path: "/analysis", label: "Expense Analysis", icon: FaChartBar },
   { path: "/addTransaction", label: "All Transactions", icon: FaListAlt },
   { path: "/summary", label: "Summary & Reports", icon: FaChartPie },
   { path: "/add", label: "Add Expense", icon: FaPlusCircle },
@@ -38,8 +38,8 @@ const bottomNavItems = [
   { path: "/home", label: "Overview", icon: FaHome },
   { path: "/dashboard", label: "Dashboard", icon: FaWallet },
   { path: "/add", label: "Add", icon: FaPlus, isSpecial: true },
+  { path: "/analysis", label: "Analysis", icon: FaChartBar },
   { path: "/addTransaction", label: "Ledger", icon: FaListAlt },
-  { path: "/ask-chatbot", label: "AI Co-Pilot", icon: FaRobot },
 ];
 
 const SideBar = () => {
@@ -47,7 +47,6 @@ const SideBar = () => {
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  const [mobileAnalysisModalOpen, setMobileAnalysisModalOpen] = useState(false);
 
   const [userInfo, setUserInfo] = useState(() => {
     try {
@@ -76,10 +75,9 @@ const SideBar = () => {
     };
   }, []);
 
-  // Close mobile drawer and modal on route change
+  // Close mobile drawer on route change
   useEffect(() => {
     setMobileDrawerOpen(false);
-    setMobileAnalysisModalOpen(false);
   }, [location.pathname]);
 
   const handleLogout = async () => {
@@ -106,6 +104,9 @@ const SideBar = () => {
     localStorage.removeItem("userInfo");
     navigate("/");
   };
+
+  const isAnalysisActive =
+    location.pathname === "/analysis" || location.pathname === "/daily-analysis";
 
   return (
     <>
@@ -134,17 +135,20 @@ const SideBar = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Quick Expense Analysis trigger */}
-          <button
-            onClick={() => setMobileAnalysisModalOpen(true)}
-            type="button"
-            aria-label="Open Expense Analysis"
+          {/* Quick Expense Analysis link */}
+          <Link
+            to="/analysis"
+            aria-label="Expense Analysis"
             title="Expense Analysis"
-            className="p-2 rounded-full bg-sidebar-accent text-sidebar-primary hover:bg-sidebar-accent/80 border border-sidebar-border transition-all cursor-pointer relative"
+            className={`p-2 rounded-full border transition-all cursor-pointer relative ${
+              isAnalysisActive
+                ? "bg-sidebar-primary text-sidebar-primary-foreground border-sidebar-primary shadow-xs"
+                : "bg-sidebar-accent text-sidebar-primary hover:bg-sidebar-accent/80 border-sidebar-border"
+            }`}
           >
             <FaChartBar className="text-sm" />
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-sidebar-primary animate-pulse" />
-          </button>
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          </Link>
 
           {/* Quick theme toggle */}
           <button
@@ -170,52 +174,6 @@ const SideBar = () => {
           </Link>
         </div>
       </header>
-
-      {/* ============================================================== */}
-      {/* MOBILE EXPENSE ANALYSIS MODAL (< md)                           */}
-      {/* ============================================================== */}
-      <AnimatePresence>
-        {mobileAnalysisModalOpen && (
-          <div className="md:hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMobileAnalysisModalOpen(false)}
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "100%", opacity: 0 }}
-              transition={{ type: "spring", damping: 28, stiffness: 300 }}
-              className="relative w-full sm:max-w-md bg-sidebar text-sidebar-foreground border-t sm:border border-sidebar-border rounded-t-3xl sm:rounded-2xl p-4 shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
-            >
-              <div className="flex items-center justify-between pb-3 mb-2 border-b border-sidebar-border/60">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-sidebar-primary/15 border border-sidebar-primary/30 flex items-center justify-center text-sidebar-primary shadow-xs">
-                    <FaChartBar className="text-sm" />
-                  </div>
-                  <div>
-                    <h3 className="font-extrabold text-sm text-sidebar-foreground">Expense Analysis</h3>
-                    <p className="text-[10px] text-muted-foreground">Daily, Weekly & Monthly Expenses</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setMobileAnalysisModalOpen(false)}
-                  className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors cursor-pointer"
-                  aria-label="Close Analysis"
-                >
-                  <FaTimes className="text-sm" />
-                </button>
-              </div>
-
-              <SidebarExpenseAnalysis />
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* ============================================================== */}
       {/* 2. MOBILE SLIDE-OVER DRAWER (< md)                             */}
@@ -292,15 +250,38 @@ const SideBar = () => {
                     );
                   })}
                 </nav>
-
-                {/* Expense Analysis Widget in Mobile Drawer */}
-                <div className="mt-5 pt-4 border-t border-sidebar-border/60">
-                  <SidebarExpenseAnalysis />
-                </div>
               </div>
 
               {/* Drawer Footer Controls */}
               <div className="pt-4 border-t border-sidebar-border/60 space-y-3 mt-6">
+                {/* Expense Analysis Section Card (similar to Profile card) */}
+                <Link
+                  to="/analysis"
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className={`p-2.5 rounded-2xl border text-xs flex items-center gap-3 transition-all group ${
+                    isAnalysisActive
+                      ? "bg-sidebar-primary/10 border-sidebar-primary/70 text-sidebar-primary shadow-xs"
+                      : "bg-card hover:bg-secondary/70 border-border text-foreground"
+                  }`}
+                  title="View Daily Expense Analysis & Bar Charts"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-sidebar-primary/15 border border-sidebar-primary/30 flex items-center justify-center text-sidebar-primary shadow-xs group-hover:scale-105 transition-transform shrink-0">
+                    <FaChartBar className="text-sm" />
+                  </div>
+                  <div className="truncate flex-1 min-w-0">
+                    <div className="font-bold text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-1.5">
+                      <span>Expense Analysis</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    </div>
+                    <div className="text-[10px] text-muted-foreground truncate flex items-center justify-between mt-0.5">
+                      <span>Daily Charts & Trends</span>
+                      <span className="text-sidebar-primary font-semibold group-hover:translate-x-0.5 transition-transform">
+                        View →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+
                 {/* Theme Toggle in Drawer */}
                 <button
                   onClick={toggleTheme}
@@ -422,7 +403,7 @@ const SideBar = () => {
       {/* ============================================================== */}
       {/* 4. DESKTOP PERMANENT SIDEBAR (>= md)                           */}
       {/* ============================================================== */}
-      <aside className="w-72 lg:w-80 bg-sidebar text-sidebar-foreground border-r border-sidebar-border p-4 lg:p-5 hidden md:flex flex-col justify-between shrink-0 h-screen sticky top-0 overflow-y-auto custom-sidebar-scroll transition-colors duration-300">
+      <aside className="w-64 lg:w-72 bg-sidebar text-sidebar-foreground border-r border-sidebar-border p-5 hidden md:flex flex-col justify-between shrink-0 min-h-screen sticky top-0 transition-colors duration-300">
         <div>
           {/* Brand */}
           <Link to="/" className="flex items-center gap-3 px-2 mb-7 group">
@@ -473,15 +454,37 @@ const SideBar = () => {
               );
             })}
           </nav>
-
-          {/* Desktop Expense Analysis Section */}
-          <div className="mt-5 pt-4 border-t border-sidebar-border/60">
-            <SidebarExpenseAnalysis />
-          </div>
         </div>
 
         {/* Footer controls & user */}
         <div className="pt-4 border-t border-sidebar-border/60 space-y-3">
+          {/* Expense Analysis Section Card (similar to Profile card) */}
+          <Link
+            to="/analysis"
+            className={`p-2.5 rounded-2xl border text-xs flex items-center gap-3 transition-all group shadow-2xs ${
+              isAnalysisActive
+                ? "bg-sidebar-primary/10 border-sidebar-primary/70 text-sidebar-primary shadow-xs"
+                : "bg-card hover:bg-secondary/70 border-border text-foreground"
+            }`}
+            title="View Daily Expense Analysis & Bar Charts"
+          >
+            <div className="w-9 h-9 rounded-xl bg-sidebar-primary/15 border border-sidebar-primary/30 flex items-center justify-center text-sidebar-primary shadow-xs group-hover:scale-105 transition-transform shrink-0">
+              <FaChartBar className="text-sm" />
+            </div>
+            <div className="truncate flex-1 min-w-0">
+              <div className="font-bold text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-1.5">
+                <span>Expense Analysis</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+              <div className="text-[10px] text-muted-foreground truncate flex items-center justify-between mt-0.5">
+                <span>Daily Charts & Trends</span>
+                <span className="text-sidebar-primary font-semibold group-hover:translate-x-0.5 transition-transform">
+                  View →
+                </span>
+              </div>
+            </div>
+          </Link>
+
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
