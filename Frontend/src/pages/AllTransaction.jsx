@@ -96,6 +96,7 @@ const AllTransactions = () => {
       );
 
       setEditId(null);
+      window.dispatchEvent(new Event("transactionUpdated"));
       enqueueSnackbar("Transaction updated successfully.", {
         variant: "success",
       });
@@ -119,6 +120,7 @@ const AllTransactions = () => {
         `${import.meta.env.VITE_BACKEND_URL}/api/v1/delete/${item._id}`,
         { withCredentials: true }
       );
+      window.dispatchEvent(new Event("transactionUpdated"));
       enqueueSnackbar("Transaction deleted.", { variant: "info" });
       fetchTransactions();
     } catch (_err) {
