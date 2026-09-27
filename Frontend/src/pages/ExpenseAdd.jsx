@@ -60,6 +60,7 @@ const AddExpense = () => {
         colors: isDark ? ["#5cb3ff", "#5197c6", "#bbe2ef"] : ["#005ae9", "#60a7d6", "#0b4196"],
       });
 
+      window.dispatchEvent(new Event("transactionUpdated"));
       enqueueSnackbar("Entry added successfully.", { variant: "success" });
       navigate("/dashboard");
     } catch (err) {
