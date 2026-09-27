@@ -13,6 +13,7 @@ import Home from './pages/Home.jsx'
 import ChangePassword from './pages/ChangePassword.jsx'
 import AskChatbot from './pages/AskChatbot.jsx'
 import Profile from './pages/Profile.jsx'
+import ExpenseAnalysis from './pages/ExpenseAnalysis.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import { SnackbarProvider } from "notistack";
 import { ThemeProvider } from './context/ThemeContext.jsx'
@@ -46,6 +47,14 @@ const appRouter = createBrowserRouter([
    {
     path: "/summary",
     element: <ViewSummary/>
+  },
+   {
+    path: "/analysis",
+    element: <ExpenseAnalysis/>
+  },
+   {
+    path: "/daily-analysis",
+    element: <ExpenseAnalysis/>
   },
    {
     path: "/home",
